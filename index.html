@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Monitor Atleta</title>
+<meta name="description" content="Macrociclo 2026-2027 — Monitor de recuperação, carga e periodização" />
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#070C18" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Monitor Atleta" />
+
+<style>
+  html, body { margin:0; padding:0; background:#070C18; overscroll-behavior-y: none; }
+  #root { min-height:100vh; }
+  #boot {
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:#070C18; color:#8B9CB8; font-family:system-ui, sans-serif; font-size:13px;
+    letter-spacing:.5px; z-index:9999;
+  }
+</style>
+
+<!-- Import map: fixa as versões e garante uma única instância de React em todo o app -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "recharts": "https://esm.sh/recharts@2.12.7?external=react,react-dom"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="boot">Carregando Monitor Atleta…</div>
+  <div id="root"></div>
+
+  <!-- Babel Standalone: transpila só JSX (preset-react), preserva import/export nativos -->
+  <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+  <script type="text/babel" data-presets="react" data-type="module" src="app.jsx"></script>
+
+  <script>
+    // remove a tela de carregamento assim que o React montar (root ganha filhos)
+    const obs = new MutationObserver(() => {
+      const root = document.getElementById('root');
+      if (root && root.children.length) {
+        document.getElementById('boot')?.remove();
+        obs.disconnect();
+      }
+    });
+    obs.observe(document.getElementById('root'), { childList: true });
+
+    // registra o service worker (necessário pro Chrome oferecer instalação como app)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
