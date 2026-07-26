@@ -25,6 +25,49 @@
   }
 </style>
 
+<script>
+  // ── Polyfill de window.storage ──────────────────────────────────────────
+  // O app foi escrito originalmente pra rodar dentro do sandbox de Artifacts
+  // do claude.ai, que injeta um objeto global `window.storage` (get/set/
+  // delete/list assíncronos). Fora desse sandbox — ou seja, aqui, hospedado
+  // no GitHub Pages — esse objeto NÃO existe nativamente no navegador.
+  // Sem isso, toda chamada window.storage.get/set falhava silenciosamente
+  // (o try/catch do app engolia o erro) e nada era salvo. Este polyfill
+  // reimplementa a mesma assinatura usando localStorage de verdade, então
+  // o resto do código (app.jsx) funciona sem precisar de nenhuma alteração.
+  if (!window.storage) {
+    const PREFIX = 'monitor_atleta::';
+    window.storage = {
+      async get(key) {
+        try {
+          const raw = localStorage.getItem(PREFIX + key);
+          return raw != null ? { key, value: raw } : null;
+        } catch (e) { console.error('storage.get falhou', e); return null; }
+      },
+      async set(key, value) {
+        try {
+          localStorage.setItem(PREFIX + key, value);
+          return { key, value };
+        } catch (e) { console.error('storage.set falhou', e); return null; }
+      },
+      async delete(key) {
+        try {
+          localStorage.removeItem(PREFIX + key);
+          return { key, deleted: true };
+        } catch (e) { return null; }
+      },
+      async list(prefix) {
+        try {
+          const keys = Object.keys(localStorage)
+            .filter(k => k.startsWith(PREFIX + (prefix || '')))
+            .map(k => k.slice(PREFIX.length));
+          return { keys };
+        } catch (e) { return { keys: [] }; }
+      },
+    };
+  }
+</script>
+
 <!-- Import map: fixa as versões e garante uma única instância de React em todo o app -->
 <script type="importmap">
 {
