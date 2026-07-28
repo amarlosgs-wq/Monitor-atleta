@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import ReactDOM from "react-dom/client";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   ComposedChart, LineChart, Line, Area, Bar, BarChart,
   XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea
 } from "recharts";
-
 
 /* ═══════════════════════ TOKENS ═══════════════════════ */
 const T = {
@@ -1778,7 +1776,3 @@ Se alguma atividade não tiver stream de FC, pule ela e me avise fora do JSON (n
     </div>
   );
 }
-
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
