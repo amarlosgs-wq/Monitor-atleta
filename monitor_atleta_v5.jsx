@@ -1,34 +1,3 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0F1116">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Monitor Atleta — Macrociclo 2026–27</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icons/icon-192.png">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<style>
-  html,body{margin:0;padding:0;background:#0F1116;color:#EDEFF4;font-family:Inter,system-ui,sans-serif}
-  #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0F1116;z-index:99}
-  #splash .pulse{width:52px;height:52px;border-radius:50%;border:3px solid #FF6B4A;display:flex;align-items:center;justify-content:center;animation:pp 1.2s ease-in-out infinite}
-  #splash svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  #splash span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8A93A6;font-family:ui-monospace,monospace}
-  @keyframes pp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:.75}}
-</style>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
-</head>
-<body>
-<noscript>O Monitor Atleta precisa de JavaScript habilitado.</noscript>
-<div id="splash"><div class="pulse"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span>Monitor Atleta</span></div>
-<div id="root"></div>
-<script type="text/babel" data-presets="react">
 /* ═══ Monitor Atleta v4 — build HTML (React UMD + Babel Standalone, sem bundler) ═══ */
 const { useState, useEffect, useMemo, useCallback } = React;
 const {
@@ -2747,15 +2716,3 @@ Se alguma atividade não tiver stream de FC, pule ela e me avise fora do JSON (n
     </div>
   );
 }
-
-const _splash = document.getElementById('splash');
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-setTimeout(() => _splash && _splash.remove(), 350);
-</script>
-<script>
-  if ('serviceWorker' in navigator && location.protocol === 'https:') {
-    addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
-  }
-</script>
-</body>
-</html>

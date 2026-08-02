@@ -2,6 +2,17 @@
 
 Todas as mudanças relevantes do Monitor Atleta ficam registradas aqui.
 
+## [1.5.0] — Peso corporal, resumo calórico semanal e lançamento manual
+### Adicionado
+- Registro de peso corporal no Diário (balança, em jejum)
+- Card "Peso corporal" na aba Baselines: gráfico com média móvel de 7 dias + leitura de ritmo semanal vs meta de perda (−0,5 a −0,7%/semana)
+- Card "Resumo calórico da semana" na aba Carga: alvo calórico, demanda e jejum planejados por dia + déficit acumulado da semana e projeção de perda de gordura
+- Lançamento manual de treino na aba Treinos (data, distância, duração, FC, elevação, altitude) — pra dias sem sync do Strava
+- Botão de remover treinos lançados manualmente
+### Mudado
+- O motor de calorias/jejum agora usa o peso real (média móvel de 7 dias da balança) em vez de um valor fixo — BMR, gasto de treino, proteína e carboidrato recalculam sozinhos a cada novo registro
+- Card "Alerta calórico" mostra a origem do peso usado (balança ou padrão)
+
 ## [1.4.0] — Alerta calórico & jejum periodizado
 ### Adicionado
 - Card "Alerta calórico" na aba Hoje: mantença (Mifflin-St Jeor), gasto de treino (real quando já registrado, estimado quando planejado), alvo calórico, proteína e carboidrato do dia
