@@ -908,6 +908,103 @@ function diagnosticoCoach({ ultimo, monoStrain, debitoSono, prontSerie, serie, t
   return { itens: itens.slice(0,7), sintese };
 }
 
+/* ═══════════════════════ MOTOR NUTRICIONAL — CALORIAS, CARBO & JEJUM ═══════════════════════
+   Mifflin-St Jeor pro BMR + fator de atividade leve (rotina sentada + 8-12mil passos nos dias
+   sem corrida) pro gasto de base, gasto de treino somado por MET, e um déficit calórico
+   periodizado por demanda do dia — maior corte nos dias leves, mínimo ou zero nos dias pesados,
+   pra segurar performance e massa magra durante o corte. Jejum 16-18h só entra onde o dia
+   permite: sem sessão-chave, sem longão, sem perna pesada. */
+const PERFIL = { pesoKg:70, alturaCm:173, idade:32, sexo:'M' };
+
+function calcBMR() {
+  const { pesoKg, alturaCm, idade } = PERFIL;
+  return Math.round(10*pesoKg + 6.25*alturaCm - 5*idade + 5); // Mifflin-St Jeor, homem
+}
+
+/* MET aproximado por tipo de sessão de corrida e por natureza da força do dia */
+const MET_CORRIDA = { Chave:11.5, Teste:12, VO2:12.5, Longo:9.5, Fácil:8, Cross:6.5 };
+function metForca(sessao) {
+  if (!sessao) return 0;
+  const nome = sessao.nome || '';
+  if (nome.includes('Calistenia')) return 4.5;   // skills/isométrico — metabolicamente mais leve
+  if (nome.includes('Inferiores') || nome.includes('Full Body')) return 6.5; // compostos pesados
+  return 5.5; // superiores/geral
+}
+
+/* Gasto estimado do treino do dia (kcal). Usa dados reais se o treino já foi registrado,
+   senão estima pela sessão planejada. */
+function calcGastoTreino(sessaoRun, treinoReal, sessaoForca) {
+  const { pesoKg } = PERFIL;
+  let kcalRun = 0;
+  if (treinoReal?.distKm) {
+    // regra prática validada em fisiologia do exercício: ~1 kcal/kg/km na corrida em piso plano
+    kcalRun = Math.round(pesoKg * treinoReal.distKm * 1.0);
+  } else if (sessaoRun && sessaoRun.tipo !== 'Descanso') {
+    const met = MET_CORRIDA[sessaoRun.tipo] || MET_CORRIDA[sessaoRun.libKey] || 9;
+    kcalRun = Math.round(met * 3.5 * pesoKg / 200 * (sessaoRun.min || 45));
+  }
+  let kcalForca = 0;
+  if (sessaoForca) {
+    const met = metForca(sessaoForca);
+    kcalForca = Math.round(met * 3.5 * pesoKg / 200 * (sessaoForca.min || 55));
+  }
+  return { kcalRun, kcalForca, total: kcalRun + kcalForca };
+}
+
+/* Classifica a demanda glicolítica/estrutural do dia — decide corte calórico e jejum */
+function classificarDemandaDia(sessaoRun, sessaoForca) {
+  const tipoRun = sessaoRun?.tipo;
+  const pernaPesada = sessaoForca?.nome?.includes('Inferiores');
+  const chaveGlicolitica = tipoRun === 'Chave' || tipoRun === 'Teste';
+  const longao = tipoRun === 'Longo';
+  if (chaveGlicolitica || longao || pernaPesada) {
+    return { nivel:'alta', motivos:[
+      chaveGlicolitica && 'sessão-chave de alta intensidade (glicogênio muscular é o combustível principal)',
+      longao && 'longão (depleção progressiva de glicogênio ao longo da sessão)',
+      pernaPesada && 'perna pesada (agachamento nas faixas de força máxima — recrutamento alto, glicogênio é limitante)',
+    ].filter(Boolean) };
+  }
+  if (tipoRun === 'Fácil' || tipoRun === 'Cross' || (sessaoForca && !pernaPesada)) {
+    return { nivel:'baixa', motivos:['rodagem fácil / cross recuperativo ou trabalho de calistenia — demanda de glicogênio baixa'] };
+  }
+  return { nivel:'media', motivos:['dia sem sessão de alta demanda glicolítica identificada'] };
+}
+
+/* Plano nutricional do dia: mantença, alvo calórico, macros e janela de jejum */
+function planoNutricional(sessaoRun, sessaoForca, treinoReal, prontidaoHoje) {
+  const bmr = calcBMR();
+  const manutencao = Math.round(bmr * 1.375); // sedentário + 8-12k passos nos dias sem corrida
+  const gasto = calcGastoTreino(sessaoRun, treinoReal, sessaoForca);
+  const disponivel = manutencao + gasto.total;
+  const demanda = classificarDemandaDia(sessaoRun, sessaoForca);
+
+  // déficit periodizado: maior nos dias leves, mínimo/zero nos dias de alta demanda
+  const deficitPct = demanda.nivel==='alta' ? 0.05 : demanda.nivel==='media' ? 0.15 : 0.25;
+  let deficit = Math.round(disponivel * deficitPct);
+  deficit = Math.min(deficit, demanda.nivel==='alta' ? 150 : demanda.nivel==='media' ? 400 : 600);
+  const alvoKcal = disponivel - deficit;
+
+  const { pesoKg } = PERFIL;
+  const proteinaG = Math.round(pesoKg * 2.0);
+  const carboGkg = demanda.nivel==='alta' ? 5.5 : demanda.nivel==='media' ? 3.5 : 2.2;
+  const carboG = Math.round(pesoKg * carboGkg);
+  const gordG = Math.max(45, Math.round((alvoKcal - proteinaG*4 - carboG*4) / 9));
+
+  // jejum: override de segurança se prontidão estiver baixa, senão segue a demanda do dia
+  let jejum;
+  if (prontidaoHoje != null && prontidaoHoje < 45) {
+    jejum = { rec:false, janela:'Sem jejum hoje', motivo:'Prontidão baixa — corpo já sinalizando estresse. Não é dia de empilhar déficit em jejum; coma cedo e normal.' };
+  } else if (demanda.nivel === 'alta') {
+    jejum = { rec:false, janela:'Sem jejum · comer em torno do treino', motivo:`Dia de alta demanda (${demanda.motivos[0]}). Café da manhã leve com carbo 60–90min antes se for treinar cedo, e a maior parte do carbo do dia nas 2–3h pós-treino pra repor glicogênio e sustentar a síntese proteica.` };
+  } else if (demanda.nivel === 'media') {
+    jejum = { rec:true, janela:'12–14h (ex.: jantar 20h → café 8–10h)', motivo:'Demanda moderada — janela reduzida preserva energia pro treino sem abrir mão do benefício do jejum. Se for treinar em jejum, mantenha intensidade baixa até a primeira refeição.' };
+  } else {
+    jejum = { rec:true, janela:'16–18h (ex.: jantar 20h → almoço 12–14h)', motivo:'Dia de baixa demanda glicolítica — a janela mais longa cabe bem aqui, e ajuda a segurar o déficit calórico maior de hoje sem sacrificar treino de qualidade.' };
+  }
+
+  return { bmr, manutencao, gasto, alvoKcal, deficit, deficitPct, proteinaG, carboG, carboGkg, gordG, demanda, jejum };
+}
+
 /* ═══════════════════════ UI PRIMITIVES ═══════════════════════ */
 const Card = ({ children, style, pad=16 }) => (
   <div style={{ background:T.card, border:`1px solid ${T.brd}`, borderRadius:16, padding:pad, ...style }}>{children}</div>
@@ -1149,6 +1246,10 @@ function App() {
   const sessaoHoje = sessaoDoDia(hojeISO());
   const sessaoForcaHoje = forcaDoDiaAdaptada(hojeISO());
   const posHoje = posMacro(hojeISO());
+  const treinoHojeReal = useMemo(() => treinos.find(t => t.data === hojeISO()), [treinos]);
+  const nutriHoje = useMemo(() =>
+    planoNutricional(sessaoHoje, sessaoForcaHoje, treinoHojeReal, ultimo?.prontidao ?? null),
+    [sessaoHoje, sessaoForcaHoje, treinoHojeReal, ultimo]);
 
   const BASE_METRICAS = [
     { k:'rmssd', l:'HRV (rMSSD)', u:'ms', c:T.violet, inv:false, icon:HeartPulse },
@@ -1583,6 +1684,40 @@ function App() {
                 </Card>
               );
             })()}
+
+            {/* ═══ Alerta calórico & jejum — periodizado pela demanda do dia ═══ */}
+            <Card style={{ marginBottom:12, borderLeft:`3px solid ${nutriHoje.jejum.rec?T.mint:T.amber}` }}>
+              <Eyebrow c={T.coral} icon={Flame}>Alerta calórico · hoje</Eyebrow>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, marginTop:11 }}>
+                <Stat label="Alvo do dia" value={nutriHoje.alvoKcal} c={T.coral} sub="kcal"/>
+                <Stat label="Proteína" value={nutriHoje.proteinaG} c={T.mint} sub={`g · ${(nutriHoje.proteinaG/PERFIL.pesoKg).toFixed(1)}g/kg`}/>
+                <Stat label="Carboidrato" value={nutriHoje.carboG} c={T.amber} sub={`g · ${nutriHoje.carboGkg}g/kg`}/>
+              </div>
+              <div style={{ fontSize:9.5, color:T.t3, fontFamily:T.mono, marginTop:8, lineHeight:1.6 }}>
+                manutenção {nutriHoje.manutencao} kcal + gasto de treino ~{nutriHoje.gasto.total} kcal
+                {nutriHoje.gasto.kcalRun>0 && ` (corrida ~${nutriHoje.gasto.kcalRun}`}
+                {nutriHoje.gasto.kcalForca>0 && `${nutriHoje.gasto.kcalRun>0?', ':' ('}força ~${nutriHoje.gasto.kcalForca}`}
+                {(nutriHoje.gasto.kcalRun>0||nutriHoje.gasto.kcalForca>0) && ')'}
+                {' '}− déficit {nutriHoje.deficit} kcal ({Math.round(nutriHoje.deficitPct*100)}%) · gordura ~{nutriHoje.gordG}g
+              </div>
+
+              <div style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:10, padding:'11px 13px', marginTop:12 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+                  <Timer size={14} color={nutriHoje.jejum.rec?T.mint:T.amber}/>
+                  <span style={{ fontSize:12.5, fontWeight:800, color:nutriHoje.jejum.rec?T.mint:T.amber }}>
+                    {nutriHoje.jejum.janela}
+                  </span>
+                  <Pill cor={nutriHoje.demanda.nivel==='alta'?T.rasp:nutriHoje.demanda.nivel==='media'?T.amber:T.mint}>
+                    demanda {nutriHoje.demanda.nivel}
+                  </Pill>
+                </div>
+                <div style={{ fontSize:11.5, color:T.t2, lineHeight:1.6 }}>{nutriHoje.jejum.motivo}</div>
+              </div>
+              <div style={{ fontSize:9.5, color:T.t3, marginTop:8, lineHeight:1.5 }}>
+                Estimativas por Mifflin-St Jeor + MET, calibradas pro teu perfil (70kg · 173cm · 32a).
+                Ajuste pelo peso real da balança a cada 1–2 semanas — se cair mais de ~0,7%/semana, coma um pouco mais nos dias leves.
+              </div>
+            </Card>
 
             {/* Força & Calistenia de hoje */}
             <ForcaCard sessao={sessaoForcaHoje} dowLabel={DIAS[new Date(hojeISO()+'T12:00:00').getDay()]}
