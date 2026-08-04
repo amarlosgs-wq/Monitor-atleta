@@ -1,0 +1,147 @@
+═══════════════════════════════════════════════════════════════════════════════
+  MONITOR ATLETA v6 — QUICK START (5 MINUTOS)
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 SEU OBJETIVO AGORA: 
+   Colocar Monitor Atleta v6 ao vivo no GitHub Pages
+
+⏱️  TEMPO: 5 MINUTOS
+
+═══════════════════════════════════════════════════════════════════════════════
+PASSO 1: CLONE/PULL SEU REPO (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Abra terminal, rode:
+
+  cd ~/amarlosgs-wq.github.io
+  git pull origin main
+
+✓ Pronto! Seu repo local está atualizado.
+
+═══════════════════════════════════════════════════════════════════════════════
+PASSO 2: COPIE O APP (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+O arquivo index.html NOVO está em:
+  /mnt/user-data/outputs/index.html
+
+Copie para sua raiz de repo:
+
+  cp index.html .
+
+Pronto! Agora você tem o novo app na raiz.
+
+═══════════════════════════════════════════════════════════════════════════════
+PASSO 3: COMMIT & PUSH (2 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+  git add index.html
+  git commit -m "feat: Monitor Atleta v6 - Reorganização treino + Calistenia + Planche"
+  git push origin main
+
+Se pedir credenciais/senha: insira seu token GitHub (ao invés de senha).
+
+✓ Pronto! App foi para GitHub.
+
+═══════════════════════════════════════════════════════════════════════════════
+PASSO 4: AGUARDE 5 MIN (5 min, passivo)
+═══════════════════════════════════════════════════════════════════════════════
+
+GitHub Pages faz deploy automático. Aguarde 3–5 minutos.
+
+Se quiser ver status:
+  https://github.com/amarlosgs-wq/amarlosgs-wq.github.io/settings/pages
+
+═══════════════════════════════════════════════════════════════════════════════
+PASSO 5: ACESSE O APP (1 min, sucesso!)
+═══════════════════════════════════════════════════════════════════════════════
+
+Abra no navegador:
+
+  https://amarlosgs-wq.github.io/
+
+✨ Monitor Atleta v6 ao vivo!
+
+Se ainda mostra versão antiga:
+  - Limpe cache: Cmd+Shift+R (Mac) / Ctrl+Shift+R (Windows)
+  - Teste em aba anônima/privada
+  - Aguarde mais 5 minutos
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ TESTES RÁPIDOS
+═══════════════════════════════════════════════════════════════════════════════
+
+Verifique:
+
+1. Abas navegam? (clique entre Diário, Calistenia, etc)
+2. Crow Pose tab funciona? (registre um hold: 20s)
+3. Dados salvam? (recarregue página F5, dado ainda lá?)
+4. Sem erros? (F12 → Console, procure erros em vermelho)
+
+Se tudo SIM → ✓ Sucesso! Monitor Atleta v6 funcionando.
+
+═══════════════════════════════════════════════════════════════════════════════
+📚 LEITURA RECOMENDADA (Depois)
+═══════════════════════════════════════════════════════════════════════════════
+
+Depois de app estar ao vivo, leia (em ordem):
+
+1. README.md (guia completo do app) — 10 min
+2. CHANGELOG_V5_V6.md (o que mudou) — 10 min
+3. PLANCHE_ROADMAP_COMPLETO.md (Planche 12 meses) — 20 min
+
+═══════════════════════════════════════════════════════════════════════════════
+❓ PROBLEMAS?
+═══════════════════════════════════════════════════════════════════════════════
+
+Git erro?          → Leia INSTALL_GITHUB.md (troubleshooting)
+App não carrega?   → Aguarde 5 min, limpe cache (Cmd+Shift+R)
+Dados não salvam?  → F12 console, procure erros
+Vazio/em branco?   → localStorage.clear() no console
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 PRÓXIMOS PASSOS APÓS UPLOAD
+═══════════════════════════════════════════════════════════════════════════════
+
+1. SEGUNDA (ago 11): Registre hold Crow Pose baseline
+2. TERÇA (ago 12): Rode CHAVE 1 (LT2), registre pace
+3. QUINTA (ago 14): CHAVE 2, check HRV de manhã
+4. 4 SEMANAS (ago 25): Valide tudo
+
+Checklist validação:
+  - Crow Pose: 20–25s holds?
+  - CHAVE 1: pace 4:50–5:05 ±2s?
+  - HRV quinta: estável vs baseline?
+  - ACWR: 0.8–1.3?
+
+═══════════════════════════════════════════════════════════════════════════════
+📱 USAR APP EM CELULAR
+═══════════════════════════════════════════════════════════════════════════════
+
+App é responsivo! Abra em seu celular:
+
+  https://amarlosgs-wq.github.io/
+
+Funciona perfeito em mobile. Registre holds Crow direto do celular!
+
+═══════════════════════════════════════════════════════════════════════════════
+✨ PRONTO!
+═══════════════════════════════════════════════════════════════════════════════
+
+Seu Monitor Atleta v6 está:
+
+✅ Online em https://amarlosgs-wq.github.io/
+✅ Reorganização terça/quinta ativa
+✅ Crow Pose tracking pronto
+✅ Planche roadmap documentado
+✅ localStorage salvando dados
+
+Próximo: Comece a usar! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Dúvidas? Leia INDEX.md (mapa completo de arquivos).
+
+Boa sorte no caminho para sub-20:00! 🏃💨
+
+═══════════════════════════════════════════════════════════════════════════════
