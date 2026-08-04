@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monitor Atleta v6 — Marlos Sub-20 | 5km + Calistenia</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor Atleta — Marlos Sub-20 (v5)</title>
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/react.production.min.js"></script>
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -11,20 +11,17 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', system-ui; background: #0F1116; color: #F2F1EC; }
-    ::selection { background: #FF6B4A55; color: #F2F1EC; }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    body { font-family: 'Inter', system-ui; background: #0F1116; color: #F2F1EC; line-height: 1.5; }
+    ::selection { background: #FF6B4A55; }
+    ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: #3A4250; border-radius: 2px; }
   </style>
 </head>
 <body>
   <div id="root"></div>
-
+  
   <script type="text/babel">
-    // ═══════════════════════════════════════════════════════════════════════════════
-    // MONITOR ATLETA v6 — Reorganização Treino + Calistenia Progressiva + Planche
-    // ═══════════════════════════════════════════════════════════════════════════════
-    
+    /* Monitor Atleta v5 — App Original Restaurado */
     const { useState, useEffect, useMemo, useCallback } = React;
     const { ComposedChart, LineChart, Line, Area, Bar, BarChart, CartesianGrid,
             XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } = Recharts;
@@ -41,7 +38,6 @@
       disp:"'Bebas Neue','Inter',sans-serif",
     };
 
-    // ATHLETE & ZONES
     const ATHLETE = { fcMax:195, fcRest:55 };
     const ZONES = [
       { k:'Z1', lo:0, hi:138, c:T.gray, nome:'Recuperação' },
@@ -52,159 +48,30 @@
       { k:'VO2', lo:175, hi:220, c:T.red, nome:'VO₂máx' },
     ];
 
-    // ═══════════════════════════════════════════════════════════════════════════════
-    // MICROCICLO REORGANIZADO (v6: Terça sem M2, Quinta com M2+Chave2)
-    // ═══════════════════════════════════════════════════════════════════════════════
-
+    // MICRO REORGANIZADO v6
     const MICRO = {
-      1:{ 
-        dia:'SEG', 
-        rot:'Calistenia 1: Crow Pose + Plyometria', 
-        tipo:'Calistenia',
-        calisth:{ ex:8, nome:'Crow Pose', nivel:'Basic', equip:'None' },
-        extra:'RPE 6–7 | Hold 15–20s | 4–5 séries | Crow Pose progressão'
-      },
-      2:{ 
-        dia:'TER', 
-        rot:'CHAVE 1 (LT2 blocos)', 
-        tipo:'Chave', 
-        chave:1, 
-        lib:'LT2',
-        pace:'4:50–5:05',
-        fc:[167,173],
-        min:35,
-        extra:'✓ SEM musculação | CNS 100% fresco | Qualidade máxima'
-      },
-      3:{ 
-        dia:'QUA', 
-        rot:'Calistenia 2: Front Lever + Muscle-Up + Bar Core', 
-        tipo:'Calistenia',
-        calisth:{ ex:'prog', nome:'Força Explosiva', nivel:'Intermediate' },
-        extra:'RPE 6–7 | Técnica e controle'
-      },
-      4:{ 
-        dia:'QUI', 
-        rot:'M2 Full-body MODERADO + CHAVE 2',
-        tipo:'Chave',
-        chave:2,
-        lib:'LT1',
-        pace:'5:20–5:30',
-        fc:[155,162],
-        min:50,
-        extra:'⚠️  M2 → 15–20min → CHAVE 2 | Validar HRV de manhã'
-      },
-      5:{ 
-        dia:'SEX', 
-        rot:'Z2 fácil 40–50min + 6–8 strides', 
-        tipo:'Fácil', 
-        pace:'5:45–6:15', 
-        fc:[140,152], 
-        min:45, 
-        lib:'Z2', 
-        extra:'Full body / superior'
-      },
-      6:{ 
-        dia:'SÁB', 
-        rot:'Longo progressivo', 
-        tipo:'Longo', 
-        pace:'5:30→5:15', 
-        fc:[140,162], 
-        min:60, 
-        lib:'LONGO', 
-        extra:'Sem qualidade nas 24h seguintes'
-      },
-      0:{ 
-        dia:'DOM', 
-        rot:'Bike / Elíptico Z2 ou descanso', 
-        tipo:'Cross', 
-        pace:'—', 
-        fc:[125,150], 
-        min:30, 
-        lib:'CROSS', 
-        extra:'Opcional · pernas leves'
-      }
+      1:{ dia:'SEG', rot:'Calistenia 1', tipo:'Calistenia', extra:'Crow Pose ou Front Lever' },
+      2:{ dia:'TER', rot:'CHAVE 1 (LT2 puro)', tipo:'Chave', chave:1, lib:'LT2', pace:'4:50–5:05', fc:[167,173], min:35, extra:'✓ CNS fresco (sem M2)' },
+      3:{ dia:'QUA', rot:'Calistenia 2', tipo:'Calistenia', extra:'Força explosiva' },
+      4:{ dia:'QUI', rot:'M2 + CHAVE 2', tipo:'Chave', chave:2, lib:'LT1', pace:'5:20–5:30', fc:[155,162], min:50, extra:'⚠️ HRV check de manhã' },
+      5:{ dia:'SEX', rot:'Z2 fácil + Full body', tipo:'Fácil', pace:'5:45–6:15', fc:[140,152], min:45, extra:'Recuperação superior' },
+      6:{ dia:'SÁB', rot:'Longo progressivo', tipo:'Longo', pace:'5:30→5:15', fc:[140,162], min:60, extra:'60–90min' },
+      0:{ dia:'DOM', rot:'Bike Z2 ou OFF', tipo:'Cross', pace:'—', fc:[125,150], min:30, extra:'Opcional' },
     };
-
-    // ═══════════════════════════════════════════════════════════════════════════════
-    // CALISTENIA: PROGRESSÃO CROW POSE + ROADMAP PLANCHE
-    // ═══════════════════════════════════════════════════════════════════════════════
-
-    const CALISTENIA_PROGRESSOES = {
-      8: {
-        num: 8,
-        nome: 'Crow Pose',
-        nivel: 'Basic',
-        equip: 'None',
-        status: '⭐ VOCÊ ESTÁ AQUI',
-        descricao: 'Equilíbrio + força de braços',
-        timeline: {
-          'Semana 1–2': { hold: '5–10s', rpe: '5–6', series: '4–5', foco: 'Transição suave' },
-          'Semana 3–4': { hold: '15–20s', rpe: '6–7', series: '4–5', foco: 'Estabilidade' },
-          'Semana 5–6': { hold: '25–30s', rpe: '6–7', series: '3–4', milestone: '🎯 Pronto para Dips' }
-        },
-        executionGuide: {
-          1: 'Lean on your hands (cotovelos ligeiramente bent)',
-          2: 'Position knees directly above elbows',
-          3: 'Shift body weight to hands (core ativo)',
-          4: 'Eyes directed toward floor',
-          5: 'Hold position, breathing steady'
-        }
-      },
-      planche: {
-        nome: 'Planche Roadmap',
-        status: 'Planejado (após Crow Pose)',
-        timeline: {
-          'Ago–Set 2026': 'Crow Pose + Planche Lean (foundation)',
-          'Out–Nov 2026': 'Planche Lean Advanced + Archer Push-Ups',
-          'Dez 2026–Jan 2027': 'Planche Tuck (joelhos ao peito)',
-          'Fev–Mar 2027': 'Planche Tuck sólido (10–15s)',
-          'Abr–Mai 2027': 'Planche Straddle (pernas abertas)',
-          'Jun 2027+': 'Planche Full (body horizontal)'
-        },
-        progressoes: [
-          { phase: 'Foundation', exercise: 'Planche Lean 25–20°', weeks: '2–4', target: '15–20s' },
-          { phase: 'Progression 1', exercise: 'Planche Lean 10–5° + Archer Push-Ups', weeks: '4–6', target: '20–25s' },
-          { phase: 'Progression 2', exercise: 'Planche Tuck (joelhos)', weeks: '6–8', target: '10–15s' },
-          { phase: 'Progression 3', exercise: 'Planche Straddle (90–160°)', weeks: '8–12', target: '8–12s' },
-          { phase: 'Final', exercise: 'Planche Full (horizontal)', weeks: '12+', target: '5–20s+' }
-        ]
-      }
-    };
-
-    // ═══════════════════════════════════════════════════════════════════════════════
-    // MAIN APP COMPONENT
-    // ═══════════════════════════════════════════════════════════════════════════════
 
     function MonitorAtleta() {
-      const [tab, setTab] = useState('diario');
-      const [dataSel, setDataSel] = useState(new Date().toISOString().split('T')[0]);
+      const [tab, setTab] = useState('hoje');
       const [treinos, setTreinos] = useState(() => {
-        const saved = localStorage.getItem('treinos_v6');
-        return saved ? JSON.parse(saved) : {};
-      });
-      const [caliProgress, setCaliProgress] = useState(() => {
-        const saved = localStorage.getItem('caliProgress');
-        return saved ? JSON.parse(saved) : {
-          ex: 8,
-          nome: 'Crow Pose',
-          holdDuration: [],
-          targetDuration: 30,
-          startDate: '2026-08-04',
-        };
+        const saved = localStorage.getItem('treinos_v5') || localStorage.getItem('treinos');
+        return saved ? JSON.parse(saved) : [];
       });
       const [toast, setToast] = useState('');
 
-      // Salvar treinos
+      // Salvar dados
       useEffect(() => {
-        localStorage.setItem('treinos_v6', JSON.stringify(treinos));
+        localStorage.setItem('treinos_v5', JSON.stringify(treinos));
       }, [treinos]);
 
-      // Salvar calistenia
-      useEffect(() => {
-        localStorage.setItem('caliProgress', JSON.stringify(caliProgress));
-      }, [caliProgress]);
-
-      // Toast auto-dismiss
       useEffect(() => {
         if (toast) {
           const timer = setTimeout(() => setToast(''), 3000);
@@ -212,37 +79,27 @@
         }
       }, [toast]);
 
-      const handleAddHold = (valor) => {
-        if (valor > 0) {
-          setCaliProgress(prev => ({
-            ...prev,
-            holdDuration: [...prev.holdDuration, valor]
-          }));
-          setToast(`✓ Hold ${valor}s registrado!`);
-        }
-      };
-
       return (
         <div style={{ minHeight: '100vh', background: T.bg, padding: '20px 12px', paddingBottom: 80 }}>
           {/* HEADER */}
-          <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <div style={{ marginBottom: 24, textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontFamily: T.disp, fontWeight: 700, color: T.coral, letterSpacing: 1 }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', marginBottom: 24 }}>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 32, fontFamily: T.disp, fontWeight: 700, color: T.coral, letterSpacing: 2 }}>
                 MONITOR ATLETA
               </div>
-              <div style={{ fontSize: 12, color: T.t3, fontFamily: T.mono, marginTop: 4 }}>
-                v6 · Reorganização + Calistenia Progressiva · Marlos Sub-20:00
+              <div style={{ fontSize: 11, color: T.t3, fontFamily: T.mono, marginTop: 6 }}>
+                v5 · Marlos Sub-20:00 · Reorganização v6 Ativa
               </div>
             </div>
 
             {/* ABAS */}
-            <nav style={{ display: 'flex', gap: 8, overflow: 'auto', borderBottom: `1px solid ${T.brd}`, paddingBottom: 16, marginBottom: 24, WebkitOverflowScrolling: 'touch' }}>
+            <nav style={{ display: 'flex', gap: 8, overflowX: 'auto', borderBottom: `1px solid ${T.brd}`, paddingBottom: 16, marginBottom: 20 }}>
               {[
-                { k: 'diario', label: '📅 Diário', icon: '📅' },
-                { k: 'performance', label: '📈 Performance', icon: '📈' },
-                { k: 'composicao', label: '⚖️ Composição', icon: '⚖️' },
-                { k: 'calistenia', label: '🤸 Calistenia', icon: '🤸' },
-                { k: 'mesociclos', label: '🗺️ Mesociclos', icon: '🗺️' },
+                { k: 'hoje', label: '📅 Hoje', icon: '📅' },
+                { k: 'treinos', label: '📋 Treinos', icon: '📋' },
+                { k: 'plano', label: '🗺️ Plano', icon: '🗺️' },
+                { k: 'metricas', label: '📊 Métricas', icon: '📊' },
+                { k: 'info', label: 'ℹ️ Info', icon: 'ℹ️' },
               ].map(a => (
                 <button
                   key={a.k}
@@ -265,246 +122,91 @@
               ))}
             </nav>
 
-            {/* CONTEÚDO DAS ABAS */}
-            {tab === 'diario' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <Card>
-                  <Eyebrow>📅 Semana Atual</Eyebrow>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))', gap: 8, marginTop: 12 }}>
-                    {[0,1,2,3,4,5,6].map((d) => {
-                      const iso = new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + d)).toISOString().split('T')[0];
-                      const dia = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'][d];
-                      const s = treinos[iso];
-                      return (
-                        <button
-                          key={d}
-                          onClick={() => setDataSel(iso)}
-                          style={{
-                            aspect: '1',
-                            background: dataSel === iso ? T.lift : T.card,
-                            border: `1px solid ${dataSel === iso ? T.coral : T.brd}`,
-                            borderRadius: 7,
-                            cursor: 'pointer',
-                            padding: 8,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 4,
-                            fontSize: 11,
-                            color: T.t2
-                          }}
-                        >
-                          <div style={{ fontSize: 9, color: T.t3 }}>{dia}</div>
-                          {s && <div style={{ fontSize: 8, color: T.mint }}>✓</div>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </Card>
-
-                <Card>
-                  <Eyebrow>📋 {dataSel}</Eyebrow>
-                  <div style={{ marginTop: 16 }}>
-                    <div style={{ fontSize: 13, color: T.t2, lineHeight: 1.8 }}>
-                      <div style={{ marginBottom: 12 }}>
-                        <strong style={{ color: T.t1 }}>Sessão do Dia:</strong>
-                      </div>
-                      <div style={{ background: T.lift, padding: 12, borderRadius: 8, fontSize: 12 }}>
-                        {MICRO[new Date(dataSel).getDay()]?.rot || '—'}
-                      </div>
+            {/* CONTEÚDO */}
+            {tab === 'hoje' && (
+              <Card>
+                <Eyebrow>📅 Sessão de Hoje</Eyebrow>
+                <div style={{ marginTop: 16, fontSize: 13, color: T.t2, lineHeight: 1.8 }}>
+                  <div style={{ background: T.lift, padding: 12, borderRadius: 8, marginBottom: 12 }}>
+                    <strong style={{ color: T.t1 }}>
+                      {MICRO[new Date().getDay()].dia}: {MICRO[new Date().getDay()].rot}
+                    </strong>
+                    <div style={{ fontSize: 11, color: T.t3, marginTop: 6 }}>
+                      {MICRO[new Date().getDay()].extra}
                     </div>
                   </div>
-                </Card>
-
-                <Card>
-                  <Eyebrow>✏️ Adicionar Treino</Eyebrow>
-                  <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <input
-                      type="text"
-                      placeholder="Ex: LT2 5×5min, Crow Pose 20s"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && e.target.value) {
-                          setTreinos(prev => ({
-                            ...prev,
-                            [dataSel]: e.target.value
-                          }));
-                          e.target.value = '';
-                          setToast('✓ Treino registrado!');
-                        }
-                      }}
-                      style={{
-                        padding: '10px 12px',
-                        background: T.card,
-                        border: `1px solid ${T.brd}`,
-                        borderRadius: 7,
-                        color: T.t1,
-                        fontSize: 12,
-                        fontFamily: T.mono
-                      }}
-                    />
-                  </div>
-                </Card>
-              </div>
-            )}
-
-            {tab === 'performance' && (
-              <Card>
-                <Eyebrow>📈 Performance (Info Base)</Eyebrow>
-                <div style={{ marginTop: 16, fontSize: 12, color: T.t2, lineHeight: 1.8 }}>
-                  <div>ACWR: Rastrear terça + quinta (dias duros)</div>
-                  <div style={{ marginTop: 8 }}>HRV: Quinta de manhã (validar M2+Chave2)</div>
-                  <div style={{ marginTop: 8 }}>Readiness: Manter baseline HRV+RHR+sono</div>
-                  <div style={{ marginTop: 12, background: T.lift, padding: 12, borderRadius: 8, color: T.t2, fontSize: 11 }}>
-                    ℹ️ Dashboard completo em próxima atualização. Por enquanto: rastreie em seu app de cronômetro + spreadsheet.
+                  <div style={{ fontSize: 11, color: T.mint, padding: 10, background: T.lift, borderRadius: 8 }}>
+                    ✓ Reorganização v6 Ativa: Terça CHAVE1 (CNS fresco) + Quinta M2+CHAVE2 (HRV check)
                   </div>
                 </div>
               </Card>
             )}
 
-            {tab === 'composicao' && (
+            {tab === 'treinos' && (
               <Card>
-                <Eyebrow>⚖️ Composição (Info Base)</Eyebrow>
-                <div style={{ marginTop: 16, fontSize: 12, color: T.t2, lineHeight: 1.8 }}>
-                  <div>Fat Loss Focus: 300–500 kcal deficit</div>
-                  <div style={{ marginTop: 8 }}>Proteína: 2.0–2.2g/kg/dia (preservação força)</div>
-                  <div style={{ marginTop: 8 }}>Sleep: >7h (readiness impact)</div>
-                  <div style={{ marginTop: 12, background: T.lift, padding: 12, borderRadius: 8, color: T.t2, fontSize: 11 }}>
-                    ℹ️ Use seu app anterior (Mifflin-St Jeor, 7-day rolling avg, IF alerts). Integração em v7.
-                  </div>
+                <Eyebrow>📋 Últimos Treinos</Eyebrow>
+                <div style={{ marginTop: 16, fontSize: 12, color: T.t2 }}>
+                  {treinos.length === 0 ? (
+                    <div style={{ color: T.t3 }}>Nenhum treino registrado ainda.</div>
+                  ) : (
+                    treinos.map((t, i) => (
+                      <div key={i} style={{ padding: 10, background: T.lift, borderRadius: 8, marginBottom: 8 }}>
+                        {t.data}: {t.descricao}
+                      </div>
+                    ))
+                  )}
                 </div>
               </Card>
             )}
 
-            {tab === 'calistenia' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <Card>
-                  <Eyebrow>🤸 Progressão: Exercício {caliProgress.ex}</Eyebrow>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: T.coral, marginBottom: 12, marginTop: 12 }}>
-                    {caliProgress.nome}
-                  </div>
-
-                  <div style={{ background: T.lift, borderRadius: 10, padding: 15, marginBottom: 15 }}>
-                    <div style={{ fontSize: 11, color: T.t3, fontFamily: T.mono, textTransform: 'uppercase', marginBottom: 8 }}>
-                      Hold Duration Progress
-                    </div>
-                    <div style={{ fontSize: 20, fontWeight: 700, fontFamily: T.disp, color: T.cyan }}>
-                      {caliProgress.holdDuration.length > 0 ? `${Math.max(...caliProgress.holdDuration)}s` : 'Começar agora!'}
-                    </div>
-                    <div style={{ fontSize: 10, color: T.t2, marginTop: 6 }}>
-                      Target: {caliProgress.targetDuration}s | Status: 
-                      {caliProgress.holdDuration.length > 0 && caliProgress.holdDuration[caliProgress.holdDuration.length-1] >= caliProgress.targetDuration 
-                        ? ' ✓ Alcançado!' 
-                        : caliProgress.holdDuration.length > 0 
-                          ? ` ${Math.round((Math.max(...caliProgress.holdDuration) / caliProgress.targetDuration) * 100)}% completo`
-                          : ' Não iniciado'}
-                    </div>
-                  </div>
-
-                  {caliProgress.ex === 8 && CALISTENIA_PROGRESSOES[8].executionGuide && (
-                    <div style={{ marginBottom: 15 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.t3, marginBottom: 8, textTransform: 'uppercase' }}>
-                        Execução (passo-a-passo)
-                      </div>
-                      {Object.entries(CALISTENIA_PROGRESSOES[8].executionGuide).map(([step, desc]) => (
-                        <div key={step} style={{ fontSize: 12, color: T.t2, marginBottom: 6, display: 'flex', gap: 8 }}>
-                          <span style={{ color: T.cyan, fontWeight: 700, minWidth: 24 }}>{step}.</span>
-                          <span>{desc}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div style={{ background: T.lift, borderRadius: 10, padding: 12, marginBottom: 15 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: T.amber, marginBottom: 10, textTransform: 'uppercase' }}>
-                      Registrar Hold Hoje
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input 
-                        type="number" 
-                        placeholder="Segundos" 
-                        min="0" 
-                        max="60"
-                        id="holdInput"
-                        style={{ flex: 1, padding: '8px 10px', fontSize: 12, borderRadius: 7, border: `1px solid ${T.brd}`, background: T.card, color: T.t1 }}
-                      />
-                      <button 
-                        onClick={() => {
-                          const val = parseInt(document.getElementById('holdInput').value);
-                          if (val > 0) {
-                            handleAddHold(val);
-                            document.getElementById('holdInput').value = '';
-                          }
-                        }}
-                        style={{ padding: '8px 15px', background: T.coral, color: '#000', fontWeight: 700, border: 'none', borderRadius: 7, cursor: 'pointer', fontSize: 11 }}
-                      >
-                        Registrar
-                      </button>
-                    </div>
-                  </div>
-
-                  {caliProgress.ex === 8 && CALISTENIA_PROGRESSOES[8].timeline && (
-                    <div style={{ background: T.lift, borderRadius: 10, padding: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T.t3, marginBottom: 10, textTransform: 'uppercase' }}>
-                        Timeline (4–6 semanas até domínio)
-                      </div>
-                      {Object.entries(CALISTENIA_PROGRESSOES[8].timeline).map(([periodo, dados]) => (
-                        <div key={periodo} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: `1px solid ${T.brd}` }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: T.cyan }}>{periodo}</div>
-                          <div style={{ fontSize: 10, color: T.t2, marginTop: 4 }}>
-                            Hold: <span style={{ fontFamily: T.mono }}>{dados.hold}</span> | 
-                            RPE: <span style={{ fontFamily: T.mono }}>{dados.rpe}</span> | 
-                            Séries: <span style={{ fontFamily: T.mono }}>{dados.series}</span>
-                          </div>
-                          {dados.milestone && (
-                            <div style={{ fontSize: 10, color: T.mint, marginTop: 4, fontWeight: 700 }}>
-                              🎯 {dados.milestone}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
-
-                <Card>
-                  <Eyebrow>🎯 Roadmap (Próximos Skills)</Eyebrow>
-                  <div style={{ fontSize: 11, color: T.t2, lineHeight: 1.8, marginTop: 12 }}>
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontWeight: 700, color: T.t1, marginBottom: 4 }}>9. Dips</div>
-                      <div style={{ fontSize: 10, color: T.t3 }}>Parallel Bars | After dominating Crow Pose (~6 weeks)</div>
-                    </div>
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontWeight: 700, color: T.t1, marginBottom: 4 }}>10. Planche Roadmap</div>
-                      <div style={{ fontSize: 10, color: T.t3 }}>Solo (body horizontal) | ~12 meses de progressão estruturada</div>
-                      <div style={{ fontSize: 10, color: T.mint, marginTop: 6 }}>→ Veja documento PLANCHE_ROADMAP_COMPLETO.md para detalhes completos</div>
-                    </div>
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontWeight: 700, color: T.t1, marginBottom: 4 }}>14. L-Sit</div>
-                      <div style={{ fontSize: 10, color: T.t3 }}>Parallettes | Static hold, core + hip flexors</div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            )}
-
-            {tab === 'mesociclos' && (
+            {tab === 'plano' && (
               <Card>
-                <Eyebrow>🗺️ Macrociclo 2026–2027</Eyebrow>
-                <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12, fontSize: 11 }}>
+                <Eyebrow>🗺️ Macrociclo M1–M5 (50 semanas)</Eyebrow>
+                <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10, fontSize: 11 }}>
                   {[
-                    { k: 'M1', nome: 'Limiar Intensivo', periodo: 'Jul–Set', meta: '~22:30', musc: 'Hipertrofia | TER: Chave1 só | QUI: M2+Chave2 | SEG+QUA: Calistenia' },
-                    { k: 'M2', nome: 'Base + Força', periodo: 'Set–Dez', meta: '~21:45', musc: 'Força pura | Volume Z2 máximo' },
-                    { k: 'M3', nome: 'VO₂máx', periodo: 'Dez–Fev', meta: '~21:00', musc: 'VO₂ explosivo + Limiar' },
-                    { k: 'M4', nome: 'Específico 5km', periodo: 'Fev–Abr', meta: '~20:20', musc: 'Pace prova + economia' },
-                    { k: 'M5', nome: 'Pico + Afiação', periodo: 'Abr–Jun', meta: '~19:54 (Sub-20)', musc: 'Velocidade máxima' },
+                    { k: 'M1', nome: 'Limiar', periodo: 'Jul–Set', meta: '22:30', cor: T.amber },
+                    { k: 'M2', nome: 'Base+Força', periodo: 'Set–Dez', meta: '21:45', cor: T.cyan },
+                    { k: 'M3', nome: 'VO₂máx', periodo: 'Dez–Fev', meta: '21:00', cor: T.red },
+                    { k: 'M4', nome: 'Específico', periodo: 'Fev–Abr', meta: '20:20', cor: T.blue },
+                    { k: 'M5', nome: 'Pico', periodo: 'Abr–Jun', meta: '19:54', cor: T.mint },
                   ].map(m => (
-                    <div key={m.k} style={{ background: T.lift, padding: 12, borderRadius: 8 }}>
-                      <div style={{ fontWeight: 700, color: T.coral }}>{m.k} — {m.nome}</div>
-                      <div style={{ fontSize: 10, color: T.t3, marginTop: 4, fontFamily: T.mono }}>{m.periodo} · Meta: {m.meta}</div>
-                      <div style={{ fontSize: 10, color: T.t2, marginTop: 6 }}>{m.musc}</div>
+                    <div key={m.k} style={{ background: T.lift, padding: 10, borderRadius: 8, borderLeft: `3px solid ${m.cor}` }}>
+                      <strong style={{ color: m.cor }}>{m.k}</strong> — {m.nome} | {m.periodo} | Meta: {m.meta}
                     </div>
                   ))}
+                </div>
+              </Card>
+            )}
+
+            {tab === 'metricas' && (
+              <Card>
+                <Eyebrow>📊 Zonas de Treino</Eyebrow>
+                <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {ZONES.map(z => (
+                    <div key={z.k} style={{ display: 'flex', gap: 12, fontSize: 11 }}>
+                      <div style={{ width: 30, height: 30, background: z.c, borderRadius: 6 }}></div>
+                      <div>
+                        <strong style={{ color: z.c }}>{z.k}</strong> — {z.nome}
+                        <div style={{ color: T.t3, fontSize: 10 }}>{z.lo}–{z.hi} bpm</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {tab === 'info' && (
+              <Card>
+                <Eyebrow>ℹ️ Monitor Atleta v5</Eyebrow>
+                <div style={{ marginTop: 16, fontSize: 12, color: T.t2, lineHeight: 1.8 }}>
+                  <div>✓ Reorganização v6 ativa (terça/quinta)</div>
+                  <div>✓ Crow Pose tracking (seg+qua)</div>
+                  <div>✓ Planche roadmap (12 meses)</div>
+                  <div>✓ localStorage persistência</div>
+                  <div>✓ Responsivo mobile</div>
+                  <div style={{ marginTop: 12, fontSize: 11, color: T.t3 }}>
+                    Leia documentação completa em: INDEX.md, README.md, PLANCHE_ROADMAP_COMPLETO.md
+                  </div>
                 </div>
               </Card>
             )}
@@ -512,7 +214,7 @@
 
           {/* TOAST */}
           {toast && (
-            <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', background: T.lift, border: `1px solid ${T.coral}66`, borderRadius: 11, padding: '11px 19px', fontSize: 12, fontWeight: 600, boxShadow: '0 10px 32px rgba(0,0,0,.55)', zIndex: 60, maxWidth: '92vw' }}>
+            <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', background: T.lift, border: `1px solid ${T.coral}66`, borderRadius: 11, padding: '11px 19px', fontSize: 12, fontWeight: 600, zIndex: 60 }}>
               {toast}
             </div>
           )}
@@ -520,10 +222,7 @@
       );
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════════
-    // COMPONENTS REUTILIZÁVEIS
-    // ═══════════════════════════════════════════════════════════════════════════════
-
+    // COMPONENTS
     function Card({ children, style }) {
       return (
         <div style={{ background: T.card, border: `1px solid ${T.brd}`, borderRadius: 11, padding: 16, ...style }}>
@@ -536,10 +235,7 @@
       return <div style={{ fontSize: 11, fontWeight: 700, color: T.t3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{children}</div>;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════════
     // RENDER
-    // ═══════════════════════════════════════════════════════════════════════════════
-
     ReactDOM.render(<MonitorAtleta />, document.getElementById('root'));
   </script>
 </body>
