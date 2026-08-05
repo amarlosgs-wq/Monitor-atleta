@@ -18,11 +18,12 @@
   #splash span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8A93A6;font-family:ui-monospace,monospace}
   @keyframes pp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:.75}}
 </style>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-is@18.2.0/umd/react-is.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script crossorigin src="https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 <script>
   // Rede de segurança: se algo quebrar antes ou durante o boot do React, mostra o erro
   // na tela em vez de deixar a tela preta sem explicação.
@@ -51,6 +52,7 @@
 <div id="root"></div>
 <script type="text/babel" data-presets="react">
 /* ═══ Monitor Atleta v4 — build HTML (React UMD + Babel Standalone, sem bundler) ═══ */
+try {
 const { useState, useEffect, useMemo, useCallback } = React;
 const {
   ComposedChart, LineChart, Line, Area, Bar, BarChart, CartesianGrid,
@@ -3173,6 +3175,12 @@ try {
   window.__monitorAtletaFatal && window.__monitorAtletaFatal((e && e.message || e) + '\n' + (e && e.stack || ''));
 }
 setTimeout(() => _splash && _splash.remove(), 350);
+} catch (e) {
+  // captura qualquer erro que aconteça ANTES do render (definição de dados, componentes,
+  // CDN que falhou ao carregar, etc.) — sem isso, esses erros ficavam mudos e só a tela
+  // preta aparecia, mesmo com o splash e o listener de erro configurados.
+  window.__monitorAtletaFatal && window.__monitorAtletaFatal((e && e.message || e) + '\n' + (e && e.stack || ''));
+}
 </script>
 <script>
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
