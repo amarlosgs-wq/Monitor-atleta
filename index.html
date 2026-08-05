@@ -645,6 +645,48 @@ function calcDebitoSono(serie7d, metaH=8) {
 const debitoStatus = h => h==null?{txt:'Sem dados',c:T.t3}
   : h<3?{txt:'Sob controle',c:T.mint} : h<7?{txt:'Acumulando',c:T.amber}:{txt:'Débito alto',c:T.red};
 
+/* ═══ Absorção da carga (0–100%) — heurística própria, não é métrica clínica validada ═══
+   Pergunta que responde: "a carga que apliquei está sendo absorvida (adaptação) ou só
+   acumulada (fadiga)?" Cruza a INCLINAÇÃO do ATL (carga aguda, 7-14d) com a INCLINAÇÃO
+   da Prontidão no mesmo período. Carga subindo + prontidão segurando/subindo junto =
+   absorção alta. Carga subindo + prontidão caindo mais rápido que o esperado = absorção
+   baixa. Coeficiente de referência (1% de alta relativa em ATL/dia ⇒ ~1.2pt de queda
+   esperada em prontidão/dia) é um ponto de partida — não uma constante fisiológica fixa. */
+function calcAbsorcaoCarga(serie, prontSerie) {
+  const JANELA = 14, MIN_PONTOS = 7;
+  const cargaVals = serie.slice(-JANELA).map(d => d.atl).filter(x => x != null);
+  const prontVals = prontSerie.slice(-JANELA).map(d => d.prontidao).filter(x => x != null);
+  if (cargaVals.length < MIN_PONTOS || prontVals.length < MIN_PONTOS) return null;
+
+  const slCarga = slopeOf(cargaVals);
+  const slPront = slopeOf(prontVals);
+  if (slCarga == null || slPront == null) return null;
+
+  const cargaMedia = cargaVals.reduce((a,b)=>a+b,0) / cargaVals.length || 1;
+  const cargaRelSlopePct = (slCarga / cargaMedia) * 100; // % de variação relativa da carga aguda, por dia
+
+  const quedaEsperada = -cargaRelSlopePct * 1.2; // pontos de prontidão/dia que essa carga "justificaria" perder
+  const diff = slPront - quedaEsperada;          // positivo = absorvendo melhor que o esperado
+  const score = clamp(Math.round(50 + diff * 8), 0, 100);
+
+  const nDados = Math.min(cargaVals.length, prontVals.length);
+  const confianca = nDados >= 12 ? 'alta' : nDados >= 9 ? 'moderada' : 'baixa';
+
+  return { score, slCarga: +slCarga.toFixed(2), slPront: +slPront.toFixed(2),
+           cargaRelSlopePct: +cargaRelSlopePct.toFixed(1), confianca, n: nDados };
+}
+function lerAbsorcao(abs) {
+  if (!abs) return { nivel:'info',
+    txt:'Ainda faltam dados suficientes (mínimo ~7 dias de carga e prontidão na mesma janela) para calcular a absorção. Continue registrando — essa métrica cruza a tendência da tua carga com a tendência da tua prontidão, não é um número isolado como os outros.' };
+  const conf = abs.confianca === 'baixa' ? ' (confiança baixa — poucos pontos ainda, leia com reserva)' : '';
+  if (abs.score >= 70) return { nivel:'ok',
+    txt:`Absorção em ${abs.score}%${conf}: a carga aguda está ${abs.slCarga>=0?'subindo':'estável/caindo'} e tua prontidão está segurando bem — ou até subindo — junto. É o sinal mais direto de que o corpo está adaptando ao estímulo, não só acumulando fadiga.` };
+  if (abs.score >= 45) return { nivel:'atencao',
+    txt:`Absorção em ${abs.score}%${conf}: zona neutra — a prontidão está caindo um pouco mais rápido do que o volume de carga atual justificaria. Não é alarme isolado, mas vale acompanhar se a tendência persistir por mais alguns dias.` };
+  return { nivel:'alerta',
+    txt:`Absorção em ${abs.score}%${conf}: a prontidão está caindo bem mais rápido do que a carga aplicada explicaria. É o sinal mais direto de que o corpo não está processando o estímulo atual — considere reduzir volume nos próximos dias antes que a queda se aprofunde.` };
+}
+
 /* validador contra a sessão planejada do macrociclo */
 function validar(plano, treino) {
   if (!plano || !treino) return null;
@@ -993,13 +1035,37 @@ const SKILLS_PLANCHE = [
    trabalham grupos musculares diferentes) — puxada + empurrada de base até a transição completa. */
 const SKILLS_MUSCLEUP = [
   { id:'mu-pullup', nome:'Barra Fixa · Pull-up Estrito', nivel:'Basic', semanas:4, metric:'reps', metricLabel:'Reps estritas (melhor série)', target:15,
-    guia:['Dead hang completo no início de cada rep — sem balanço nem kipping','Puxe até o queixo passar a barra','Descida controlada (2–3s), sem soltar a tensão no fim','Escápulas deprimidas e retraídas antes de puxar'] },
+    guia:['Dead hang completo no início de cada rep — sem balanço nem kipping','Puxe até o queixo passar a barra','Descida controlada (2–3s), sem soltar a tensão no fim','Escápulas deprimidas e retraídas antes de puxar'],
+    fases:[
+      { semana:'1', hold:'8–10 reps', rpe:'6', series:'4x' },
+      { semana:'2', hold:'10–12 reps', rpe:'6–7', series:'4x' },
+      { semana:'3', hold:'12–14 reps', rpe:'7', series:'4x' },
+      { semana:'4', hold:'15+ reps', rpe:'7–8', series:'4x', milestone:'Pronto pra somar volume de Dips (#mu-dips)' },
+    ] },
   { id:'mu-dips', nome:'Paralela · Dips Estrito', nivel:'Basic', semanas:4, metric:'reps', metricLabel:'Reps estritas (melhor série)', target:15,
-    guia:['Cotovelo desce até 90° ou pouco abaixo','Tronco levemente inclinado à frente — protege o ombro','Trava completa no topo, sem hiperestender o cotovelo','Descida controlada, sem quicar embaixo'] },
+    guia:['Cotovelo desce até 90° ou pouco abaixo','Tronco levemente inclinado à frente — protege o ombro','Trava completa no topo, sem hiperestender o cotovelo','Descida controlada, sem quicar embaixo'],
+    fases:[
+      { semana:'1', hold:'8–10 reps', rpe:'6', series:'4x' },
+      { semana:'2', hold:'10–12 reps', rpe:'6–7', series:'4x' },
+      { semana:'3', hold:'12–14 reps', rpe:'7', series:'4x' },
+      { semana:'4', hold:'15+ reps', rpe:'7–8', series:'4x', milestone:'Pronto pra False Grip + Negativas' },
+    ] },
   { id:'mu-falsegrip', nome:'False Grip + Negativas', nivel:'Intermediate', semanas:4, metric:'hold_s', metricLabel:'Hold do false grip (segundos)', target:20,
-    guia:['Pulso por cima da barra/argola, pressão na base da palma, não nos dedos','Comece pendurado sem peso, só sustentando a pegada','Negativa: desça de cima da barra em transição controlada por 5s','Se o pulso doer, pare — aqui é técnica, não força bruta'] },
+    guia:['Pulso por cima da barra/argola, pressão na base da palma, não nos dedos','Comece pendurado sem peso, só sustentando a pegada','Negativa: desça de cima da barra em transição controlada por 5s','Se o pulso doer, pare — aqui é técnica, não força bruta'],
+    fases:[
+      { semana:'1', hold:'5–8s (parado, sem peso)', rpe:'5', series:'4x' },
+      { semana:'2', hold:'10–12s + negativa 1x', rpe:'6', series:'4x' },
+      { semana:'3', hold:'15s + negativa 2–3x', rpe:'6–7', series:'4x' },
+      { semana:'4', hold:'20s + negativa 3x limpa', rpe:'7', series:'4x', milestone:'Punho e pegada prontos pra transição assistida' },
+    ] },
   { id:'mu-transicao', nome:'Transição Assistida', nivel:'Intermediate', semanas:4, metric:'reps', metricLabel:'Transições limpas (elástico/banda)', target:5,
-    guia:['Elástico ou banda de assistência reduz o peso durante a transição','Foco no cotovelo virando por baixo do corpo — não é empurrar pra cima','Reduza a assistência progressivamente a cada 1–2 semanas'] },
+    guia:['Elástico ou banda de assistência reduz o peso durante a transição','Foco no cotovelo virando por baixo do corpo — não é empurrar pra cima','Reduza a assistência progressivamente a cada 1–2 semanas'],
+    fases:[
+      { semana:'1', hold:'Banda forte, 2–3 transições', rpe:'6–7', series:'4x2' },
+      { semana:'2', hold:'Banda forte, 3–4 transições', rpe:'7', series:'4x3' },
+      { semana:'3', hold:'Banda média, 3–4 transições', rpe:'7', series:'5x3' },
+      { semana:'4', hold:'Banda leve, 5 transições', rpe:'7–8', series:'5x3', milestone:'Pronto pra tentar a primeira muscle-up' },
+    ] },
   { id:'mu-primeira', nome:'Primeira Muscle-Up', nivel:'Advanced', semanas:6, metric:'reps', metricLabel:'Muscle-ups limpos (sem kipping)', target:1,
     guia:['Todo o trabalho anterior converge aqui — não pule etapa se os números da barra/paralela ainda não bateram a meta','Puxada explosiva + giro do cotovelo por baixo + finaliza em dip','Prefira poucas tentativas de qualidade a muitas tentativas com kipping'],
     fases:[
@@ -1076,12 +1142,19 @@ function metForca(sessao) {
   return 5.5; // superiores/geral
 }
 
-/* Gasto estimado do treino do dia (kcal). Usa dados reais se o treino já foi registrado,
-   senão estima pela sessão planejada. */
+/* Gasto estimado do treino do dia (kcal). PRIORIDADE: usa o valor real do relógio
+   (treinoReal.kcal, vindo do Strava) sempre que existir — relógios de pulso costumam
+   reportar calorias líquidas (já descontando o metabolismo basal) e são calibrados ao
+   perfil pessoal, então tendem a ficar abaixo da estimativa genérica por MET/distância
+   pra quem tem boa economia de corrida. Só cai pra fórmula quando não há dado real
+   (sessão ainda não realizada, ou treino sem essa informação). */
 function calcGastoTreino(sessaoRun, treinoReal, sessaoForca, pesoKg = PERFIL.pesoKg) {
-  let kcalRun = 0;
-  if (treinoReal?.distKm) {
-    // regra prática validada em fisiologia do exercício: ~1 kcal/kg/km na corrida em piso plano
+  let kcalRun = 0, fonteRun = 'estimado';
+  if (treinoReal?.kcal) {
+    kcalRun = treinoReal.kcal;
+    fonteRun = 'relogio';
+  } else if (treinoReal?.distKm) {
+    // regra prática de fisiologia do exercício: ~1 kcal/kg/km na corrida em piso plano (gasto bruto)
     kcalRun = Math.round(pesoKg * treinoReal.distKm * 1.0);
   } else if (sessaoRun && sessaoRun.tipo !== 'Descanso') {
     const met = MET_CORRIDA[sessaoRun.tipo] || MET_CORRIDA[sessaoRun.libKey] || 9;
@@ -1092,7 +1165,7 @@ function calcGastoTreino(sessaoRun, treinoReal, sessaoForca, pesoKg = PERFIL.pes
     const met = metForca(sessaoForca);
     kcalForca = Math.round(met * 3.5 * pesoKg / 200 * (sessaoForca.min || 55));
   }
-  return { kcalRun, kcalForca, total: kcalRun + kcalForca };
+  return { kcalRun, kcalForca, total: kcalRun + kcalForca, fonteRun };
 }
 
 /* Classifica a demanda glicolítica/estrutural do dia — decide corte calórico e jejum */
@@ -1211,8 +1284,16 @@ const Stat = ({ label, value, c=T.t1, sub }) => (
   </div>
 );
 const Slider = ({ label, hint, value, min, max, step=1, cor=T.coral, fmt, onChange }) => {
-  const v = value ?? null;
+  const [local, setLocal] = useState(value);
+  const timer = React.useRef(null);
+  useEffect(() => { setLocal(value); }, [value]);
+  const v = local ?? null;
   const pct = v==null ? 0 : Math.max(0, Math.min(100, (v-min)/(max-min)*100));
+  const handle = raw => {
+    setLocal(Number(raw)); // feedback visual instantâneo, sem travar
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => onChange(raw), 220); // commit real (pesado) só depois de parar
+  };
   return (
     <div>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6, gap:8 }}>
@@ -1224,8 +1305,35 @@ const Slider = ({ label, hint, value, min, max, step=1, cor=T.coral, fmt, onChan
         </span>
       </div>
       <input type="range" className="mslider" min={min} max={max} step={step}
-        value={v==null ? min : v} onChange={e=>onChange(e.target.value)}
+        value={v==null ? min : v} onChange={e=>handle(e.target.value)}
         style={{ '--fill':cor, background:`linear-gradient(90deg, ${cor} ${pct}%, ${T.brd} ${pct}%)` }}/>
+    </div>
+  );
+};
+/* Input numérico do diário — estado local pra digitar sem travar; só escreve no estado
+   global (que dispara todo o recálculo pesado do app) depois de 500ms sem digitar, ou
+   ao sair do campo. Precisa ficar FORA do corpo do componente que a usa — se for
+   redefinida a cada render, o React trata como um componente novo e o input perde o
+   foco a cada tecla (era exatamente isso que causava a interrupção). */
+const DiarioNumInput = ({ k, l, u, s=1, value, onCommit }) => {
+  const [local, setLocal] = useState(value ?? '');
+  const timer = React.useRef(null);
+  useEffect(() => { setLocal(value ?? ''); }, [value]);
+  const handle = raw => {
+    setLocal(raw);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => onCommit(k, raw), 500);
+  };
+  const flush = () => { clearTimeout(timer.current); onCommit(k, local); };
+  return (
+    <div>
+      <div style={{ fontSize:10, color:T.t2, marginBottom:4 }}>
+        {l} <span style={{ color:T.t3, fontFamily:T.mono }}>{u}</span>
+      </div>
+      <input type="number" step={s} value={local} placeholder="—"
+        onChange={ev=>handle(ev.target.value)} onBlur={flush}
+        style={{ width:'100%', background:T.lift, border:`1px solid ${T.brd2}`, borderRadius:8,
+                 padding:'9px 11px', color:T.t1, fontSize:14, fontFamily:T.mono, fontWeight:600, outline:'none' }}/>
     </div>
   );
 };
@@ -1260,6 +1368,32 @@ function CoachNote({ leitura, titulo='Leitura do coach' }) {
       </div>
     </div>
   );
+}
+
+/* Seção colapsável — usada pra reorganizar a aba Hoje sem floodar a tela.
+   `aberta`/`onToggle` controlados de fora (persistem no localStorage do app, ver App()).
+   `peek` é o resumo de uma linha mostrado mesmo fechada, pra dar contexto sem precisar abrir. */
+function Secao({ id, titulo, icon:Icon, cor=T.coral, peek, aberta, onToggle, badge, children, defaultCard=true }) {
+  const conteudo = (
+    <>
+      <button onClick={onToggle} style={{
+        width:'100%', background:'none', border:'none', cursor:'pointer', padding:0,
+        display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, textAlign:'left' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flex:1 }}>
+          <Eyebrow c={cor} icon={Icon}>{titulo}</Eyebrow>
+          {badge}
+        </div>
+        {aberta ? <ChevronUp size={15} color={T.t3} style={{flexShrink:0}}/> : <ChevronDown size={15} color={T.t3} style={{flexShrink:0}}/>}
+      </button>
+      {!aberta && peek && (
+        <div style={{ fontSize:11, color:T.t3, marginTop:7, lineHeight:1.5 }}>{peek}</div>
+      )}
+      {aberta && <div style={{ marginTop:12 }}>{children}</div>}
+    </>
+  );
+  return defaultCard
+    ? <Card style={{ marginBottom:12 }}>{conteudo}</Card>
+    : <div style={{ marginBottom:12 }}>{conteudo}</div>;
 }
 
 /* Anel de prontidão — arco suave com glow, assinatura visual */
@@ -1407,14 +1541,19 @@ function App() {
   const [openExec, setOpenExec] = useState(true);
   const [openForca, setOpenForca] = useState(false);
   const [showImport, setShowImport] = useState(false);
-  const [openProto, setOpenProto] = useState(false);
   const [openManual, setOpenManual] = useState(false);
-  const [manualForm, setManualForm] = useState({ data: hojeISO(), hora:'', distKm:'', duracaoMin:'', fcMedia:'', fcMax:'', elevM:'0', altitudeM:'600' });
+  const [manualForm, setManualForm] = useState({ data: hojeISO(), hora:'', distKm:'', duracaoMin:'', fcMedia:'', fcMax:'', elevM:'0', altitudeM:'600', kcal:'' });
   const [importText, setImportText] = useState('');
   const [caliLogs, setCaliLogs] = useState({});
   const [caliInput, setCaliInput] = useState('');
   const [trilhaSel, setTrilhaSel] = useState('planche');
   const [fundInputs, setFundInputs] = useState({});
+  /* Seções colapsáveis da aba Hoje — sessões abrem por padrão (é o que importa primeiro),
+     o resto começa fechado pra não floodar a tela. */
+  const [secoesAbertas, setSecoesAbertas] = useState({
+    corrida: true, forca: true, calorias: false, wellness: false,
+  });
+  const toggleSecao = id => setSecoesAbertas(s => ({ ...s, [id]: !s[id] }));
 
   useEffect(() => { (async () => {
     try {
@@ -1474,6 +1613,8 @@ function App() {
   const ultimo = [...prontSerie].reverse().find(d=>d.prontidao!=null);
   const monoStrain = useMemo(() => calcMonotoniaStrain(serie.slice(-7)), [serie]);
   const debitoSono = useMemo(() => calcDebitoSono(serie.slice(-7)), [serie]);
+  const absorcao = useMemo(() => calcAbsorcaoCarga(serie, prontSerie), [serie, prontSerie]);
+  const leituraAbsorcao = useMemo(() => lerAbsorcao(absorcao), [absorcao]);
   const acwrSt = acwrStatus(ultimo?.acwr);
   const sessaoHoje = sessaoDoDia(hojeISO());
   const sessaoForcaHoje = forcaDoDiaAdaptada(hojeISO());
@@ -1569,10 +1710,12 @@ function App() {
     setDiario(novo); salvar(novo, treinos);
   };
   const exportar = () => {
-    const blob = new Blob([JSON.stringify({ v:5, exported:new Date().toISOString(), entries:diario, treinos }, null, 2)], { type:'application/json' });
+    const payload = { v:6, exported:new Date().toISOString(), entries:diario, treinos, caliLogs };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = `monitor-${hojeISO()}.json`; a.click();
-    URL.revokeObjectURL(a.href); flash('Arquivo exportado');
+    a.href = URL.createObjectURL(blob); a.download = `monitor-atleta-backup-${hojeISO()}.json`; a.click();
+    URL.revokeObjectURL(a.href);
+    flash(`Backup completo exportado — ${Object.keys(diario).length} dias, ${treinos.length} treinos, ${Object.keys(caliLogs).length} skill(s) com registro`);
   };
   const dedupeTreinos = list => {
     const out = [];
@@ -1596,10 +1739,24 @@ function App() {
       const t = dedupeTreinos(tRaw);
       const removidos = tRaw.length - t.length;
       const nDias = Object.keys(d).length;
+
+      // merge de caliLogs: junta por skill, dedupe por (data+valor) pra não duplicar registro
+      let nSkillLogs = 0;
+      if (j.caliLogs) {
+        const merged = { ...caliLogs };
+        for (const [skillId, logs] of Object.entries(j.caliLogs)) {
+          const existentes = merged[skillId] || [];
+          const novos = logs.filter(l => !existentes.some(e => e.data===l.data && e.valor===l.valor));
+          nSkillLogs += novos.length;
+          merged[skillId] = [...existentes, ...novos].sort((a,b)=>a.data<b.data?-1:1);
+        }
+        setCaliLogs(merged); salvarCali(merged);
+      }
+
       setDiario(prev => { const m = { ...prev, ...d }; salvar(m, t); return m; });
       if (j.treinos) setTreinos(t);
-      if (nDias === 0 && !j.treinos) { flash('JSON válido, mas sem "entries" nem "treinos" reconhecidos'); return; }
-      flash(`${nDias} dia(s) + ${j.treinos?.length||0} treino(s) importados${removidos>0?` · ${removidos} duplicata(s) removida(s)`:''}`);
+      if (nDias === 0 && !j.treinos && !j.caliLogs) { flash('JSON válido, mas sem "entries", "treinos" ou "caliLogs" reconhecidos'); return; }
+      flash(`${nDias} dia(s) + ${j.treinos?.length||0} treino(s) + ${nSkillLogs} registro(s) de skill importados${removidos>0?` · ${removidos} duplicata(s) removida(s)`:''}`);
       setShowImport(false); setImportText('');
     } catch (err) {
       flash('JSON inválido — confira se copiou o bloco completo');
@@ -1657,13 +1814,14 @@ function App() {
       altitudeM: Number(f.altitudeM)||600,
       gradeMedio: 0,
       cadencia: null, re: null,
+      kcal: f.kcal===''?null:Number(f.kcal),
       zonas: null, // lançamento manual não estima distribuição de zonas
       manual: true,
     };
     const t = dedupeTreinos([...treinos, novoTr]);
     setTreinos(t); salvar(diario, t);
     flash(`Treino de ${distKm}km em ${f.data} adicionado`);
-    setManualForm({ data: hojeISO(), hora:'', distKm:'', duracaoMin:'', fcMedia:'', fcMax:'', elevM:'0', altitudeM:'600' });
+    setManualForm({ data: hojeISO(), hora:'', distKm:'', duracaoMin:'', fcMedia:'', fcMax:'', elevM:'0', altitudeM:'600', kcal:'' });
     setOpenManual(false);
   };
   const removerTreino = id => {
@@ -1744,9 +1902,11 @@ function App() {
           )}
           {showImport && (
             <div style={{ background:T.lift, border:`1px solid ${T.brd2}`, borderRadius:11, padding:13, marginBottom:12 }}>
-              <Eyebrow c={T.coral} icon={Upload}>Colar JSON de sincronização</Eyebrow>
+              <Eyebrow c={T.coral} icon={Upload}>Colar JSON — sync do Strava ou backup completo</Eyebrow>
               <div style={{ fontSize:10.5, color:T.t3, margin:'5px 0 8px', lineHeight:1.5 }}>
-                Peça no chat com o prompt da aba "Strava" e cole a resposta do Claude aqui.
+                Serve pra dois casos: (1) sincronizar treinos do Strava — peça no chat com o prompt da aba "Strava" e cole a resposta aqui;
+                (2) restaurar um backup completo exportado pelo botão <b style={{color:T.t2}}>Exportar</b> — cole o conteúdo do arquivo
+                inteiro. Nada é apagado no processo: dias e treinos batem por data, registros de skill se somam sem duplicar.
               </div>
               <textarea value={importText} onChange={e=>setImportText(e.target.value)}
                 placeholder='{"entries": {...}, "treinos": [...]}'
@@ -1907,99 +2067,33 @@ function App() {
               </Card>
             ); })()}
 
-            {/* ═══ DIAGNÓSTICO DO COACH — parecer integrado ═══ */}
-            <Card style={{ marginBottom:12, borderLeft:`3px solid ${T.coral}` }}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, flexWrap:'wrap' }}>
-                <Eyebrow c={T.coral} icon={Stethoscope}>Diagnóstico do coach · hoje</Eyebrow>
-                <div style={{ display:'flex', gap:5 }}>
-                  {['alerta','atencao','ok'].map(n => {
-                    const qtd = diag.itens.filter(i=>i.nivel===n).length;
-                    return qtd>0 ? <Pill key={n} cor={nivelCor(n)}>{qtd}</Pill> : null;
-                  })}
-                </div>
-              </div>
-              {diag.sintese && (
-                <div style={{ fontSize:12.5, color:T.t1, lineHeight:1.65, marginTop:10,
-                              background:T.lift, border:`1px solid ${T.brd}`, borderRadius:10, padding:'11px 13px' }}>
-                  {diag.sintese}
-                </div>
-              )}
-              <div style={{ marginTop:11, display:'flex', flexDirection:'column', gap:8 }}>
-                {diag.itens.map((it,i) => {
-                  const c = nivelCor(it.nivel), Icon = nivelIcone(it.nivel);
-                  return (
-                    <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start',
-                                          background:c+'08', border:`1px solid ${c}22`, borderRadius:9, padding:'9px 11px' }}>
-                      <Icon size={14} color={c} style={{ flexShrink:0, marginTop:2 }}/>
-                      <div>
-                        <div style={{ fontSize:11, fontWeight:700, color:c, marginBottom:2 }}>{it.titulo}</div>
-                        <div style={{ fontSize:11.5, color:T.t2, lineHeight:1.58 }}>{it.txt}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-                {!diag.itens.length && (
-                  <div style={{ fontSize:12, color:T.t3 }}>Registre diário e treinos para o parecer completo.</div>
-                )}
-              </div>
-            </Card>
-
-            {/* ═══ Protocolos do dia — evidência aplicada à sessão ═══ */}
-            {sessaoHoje && (() => {
-              const ch = sessaoHoje.tipo==='Chave' || sessaoHoje.tipo==='Teste';
-              const lg = sessaoHoje.tipo==='Longo';
-              const prot = [
-                ...(ch ? [
-                  ['Cafeína', '3–6 mg/kg, 45–60 min antes da sessão — o ergogênico com maior corpo de evidência pra limiar e VO₂max (ISSN 2021). Depois das 14h, não: o sono paga a conta.'],
-                  ['Nitrato · beterraba', '400–800 mg de NO₃⁻ (suco ou shot concentrado) 2–3h antes: reduz o custo de O₂ em intensidade submáxima. Efeito maior em atletas não-elite — teu caso a favor.'],
-                ] : []),
-                ...(lg ? [
-                  ['Carboidrato intra-treino', 'Acima de 75 min: 30–60 g/h + 300–600 mg de sódio/h no calor. Treina o intestino pro dia da prova e poupa massa magra no déficit.'],
-                ] : []),
-                ['Creatina', '3–5 g todo dia, em qualquer horário. Barata, segura, e protege força e massa magra durante o fat loss (posição da ISSN).'],
-                ['Proteína no déficit', '1,8–2,2 g/kg/dia, dividida em ~4 doses de 0,4 g/kg. É o seguro da tua massa magra nos próximos 3 meses de corte.'],
-                ['Higiene de sono', 'Consistência de horário vale mais que duração pontual. Cafeína até 8h antes de deitar, quarto frio e escuro — o rMSSD da manhã é teu feedback objetivo.'],
-              ];
-              return (
-                <Card style={{ marginBottom:12 }}>
-                  <button onClick={()=>setOpenProto(!openProto)}
-                    style={{ width:'100%', background:'none', border:'none', color:T.t1, cursor:'pointer',
-                             display:'flex', alignItems:'center', justifyContent:'space-between', padding:0 }}>
-                    <Eyebrow c={T.mint} icon={Sparkles}>Protocolos do dia · evidência aplicada</Eyebrow>
-                    {openProto ? <ChevronUp size={14} color={T.t3}/> : <ChevronDown size={14} color={T.t3}/>}
-                  </button>
-                  {openProto && (
-                    <div style={{ marginTop:11, display:'flex', flexDirection:'column', gap:8 }}>
-                      {prot.map(([tt,dd]) => (
-                        <div key={tt} style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:9, padding:'9px 11px' }}>
-                          <div style={{ fontSize:11, fontWeight:700, color:T.mint, marginBottom:2 }}>{tt}</div>
-                          <div style={{ fontSize:11.5, color:T.t2, lineHeight:1.55 }}>{dd}</div>
-                        </div>
-                      ))}
-                      <div style={{ fontSize:9.5, color:T.t3, fontFamily:T.mono, lineHeight:1.6 }}>
-                        Referências: ISSN Position Stands (cafeína 2021 · creatina 2017 · proteína 2017) · Jones 2018 (nitrato) · Jeukendrup 2014 (carbo intra). Nada substitui treino e sono.
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              );
-            })()}
+            {/* Força & Calistenia de hoje — junto da corrida, no topo, como sessão prioritária do dia */}
+            <ForcaCard sessao={sessaoForcaHoje} dowLabel={DIAS[new Date(hojeISO()+'T12:00:00').getDay()]}
+              aberta={openForca} onToggle={()=>setOpenForca(!openForca)} />
 
             {/* ═══ Alerta calórico & jejum — periodizado pela demanda do dia ═══ */}
-            <Card style={{ marginBottom:12, borderLeft:`3px solid ${nutriHoje.jejum.rec?T.mint:T.amber}` }}>
-              <Eyebrow c={T.coral} icon={Flame}>Alerta calórico · hoje</Eyebrow>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, marginTop:11 }}>
+            <Secao id="calorias" titulo="Alerta calórico · hoje" icon={Flame} cor={nutriHoje.jejum.rec?T.mint:T.amber}
+              aberta={secoesAbertas.calorias} onToggle={()=>toggleSecao('calorias')}
+              peek={`Alvo ${nutriHoje.alvoKcal} kcal · ${nutriHoje.jejum.rec ? nutriHoje.jejum.janela.split(' ')[0]+' de jejum' : 'sem jejum hoje'} · demanda ${nutriHoje.demanda.nivel}`}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8 }}>
                 <Stat label="Alvo do dia" value={nutriHoje.alvoKcal} c={T.coral} sub="kcal"/>
                 <Stat label="Proteína" value={nutriHoje.proteinaG} c={T.mint} sub={`g · ${(nutriHoje.proteinaG/nutriHoje.pesoKg).toFixed(1)}g/kg`}/>
                 <Stat label="Carboidrato" value={nutriHoje.carboG} c={T.amber} sub={`g · ${nutriHoje.carboGkg}g/kg`}/>
               </div>
               <div style={{ fontSize:9.5, color:T.t3, fontFamily:T.mono, marginTop:8, lineHeight:1.6 }}>
                 manutenção {nutriHoje.manutencao} kcal + gasto de treino ~{nutriHoje.gasto.total} kcal
-                {nutriHoje.gasto.kcalRun>0 && ` (corrida ~${nutriHoje.gasto.kcalRun}`}
+                {nutriHoje.gasto.kcalRun>0 && ` (corrida ${nutriHoje.gasto.fonteRun==='relogio'?'':'~'}${nutriHoje.gasto.kcalRun}${nutriHoje.gasto.fonteRun==='relogio'?' · relógio':' · estimado'}`}
                 {nutriHoje.gasto.kcalForca>0 && `${nutriHoje.gasto.kcalRun>0?', ':' ('}força ~${nutriHoje.gasto.kcalForca}`}
                 {(nutriHoje.gasto.kcalRun>0||nutriHoje.gasto.kcalForca>0) && ')'}
                 {' '}− déficit {nutriHoje.deficit} kcal ({Math.round(nutriHoje.deficitPct*100)}%) · gordura ~{nutriHoje.gordG}g
               </div>
+              {nutriHoje.gasto.fonteRun==='estimado' && nutriHoje.gasto.kcalRun>0 && (
+                <div style={{ fontSize:9.5, color:T.t3, marginTop:4, lineHeight:1.5, fontStyle:'italic' }}>
+                  Sem calorias reais desse treino ainda — usando estimativa por fórmula (MET/distância), que tende a
+                  ficar acima do que o relógio mostra pra quem tem boa economia de corrida. Sincroniza pelo Strava
+                  (aba Strava) que a próxima leitura usa o valor real.
+                </div>
+              )}
 
               <div style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:10, padding:'11px 13px', marginTop:12 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
@@ -2018,17 +2112,56 @@ function App() {
                 {pesoTend.n>=8 ? ' (média móvel de 7 dias da balança)' : ' (padrão — registre o peso no Diário pra calibrar automaticamente)'},
                 {' '}173cm, 32a. Recalcula sozinho a cada novo registro de peso.
               </div>
-            </Card>
+            </Secao>
 
-            {/* Força & Calistenia de hoje */}
-            <ForcaCard sessao={sessaoForcaHoje} dowLabel={DIAS[new Date(hojeISO()+'T12:00:00').getDay()]}
-              aberta={openForca} onToggle={()=>setOpenForca(!openForca)} />
+            {/* ═══ PRONTIDÃO, WELLNESS & FADIGA — grupo colapsável, prioridade 3 do dia ═══ */}
+            <div style={{ margin:'4px 2px 8px' }}>
+              <Eyebrow c={T.t3}>Prontidão, wellness & fadiga</Eyebrow>
+            </div>
+
+            <Secao id="diagnostico" titulo="Diagnóstico do coach · hoje" icon={Stethoscope} cor={T.coral}
+              aberta={secoesAbertas.diagnostico} onToggle={()=>toggleSecao('diagnostico')}
+              badge={
+                <div style={{ display:'flex', gap:4 }}>
+                  {['alerta','atencao','ok'].map(n => {
+                    const qtd = diag.itens.filter(i=>i.nivel===n).length;
+                    return qtd>0 ? <Pill key={n} cor={nivelCor(n)}>{qtd}</Pill> : null;
+                  })}
+                </div>
+              }
+              peek={diag.sintese || 'Registre diário e treinos para o parecer completo.'}>
+              {diag.sintese && (
+                <div style={{ fontSize:12.5, color:T.t1, lineHeight:1.65, marginBottom:11,
+                              background:T.lift, border:`1px solid ${T.brd}`, borderRadius:10, padding:'11px 13px' }}>
+                  {diag.sintese}
+                </div>
+              )}
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {diag.itens.map((it,i) => {
+                  const c = nivelCor(it.nivel), Icon = nivelIcone(it.nivel);
+                  return (
+                    <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start',
+                                          background:c+'08', border:`1px solid ${c}22`, borderRadius:9, padding:'9px 11px' }}>
+                      <Icon size={14} color={c} style={{ flexShrink:0, marginTop:2 }}/>
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:700, color:c, marginBottom:2 }}>{it.titulo}</div>
+                        <div style={{ fontSize:11.5, color:T.t2, lineHeight:1.58 }}>{it.txt}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {!diag.itens.length && (
+                  <div style={{ fontSize:12, color:T.t3 }}>Registre diário e treinos para o parecer completo.</div>
+                )}
+              </div>
+            </Secao>
 
             {/* Aderência semanal */}
             {(aderenciaSemana.chaves.total>0 || aderenciaSemana.faceis.total>0) && (
-              <Card style={{ marginBottom:12 }}>
-                <Eyebrow icon={ClipboardList}>Aderência ao plano · semana corrente</Eyebrow>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginTop:10 }}>
+              <Secao id="aderencia" titulo="Aderência ao plano · semana corrente" icon={ClipboardList}
+                aberta={secoesAbertas.aderencia} onToggle={()=>toggleSecao('aderencia')}
+                peek={`Chaves ${aderenciaSemana.chaves.cumprido}/${aderenciaSemana.chaves.total} · Fáceis ${aderenciaSemana.faceis.cumprido}/${aderenciaSemana.faceis.total} cumpridos`}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
                   {[
                     { l:'Chaves', d:aderenciaSemana.chaves },
                     { l:'Fáceis', d:aderenciaSemana.faceis },
@@ -2061,33 +2194,61 @@ function App() {
                   <CoachNote leitura={{ nivel:'atencao',
                     txt:`${aderenciaSemana.faceis.feito - aderenciaSemana.faceis.cumprido} dia(s) fácil saiu da zona-alvo esta semana — o padrão de pace escapando pra cima continua. Cada fácil que vira moderado rouba um pedaço da próxima chave.` }}/>
                 )}
-              </Card>
+              </Secao>
             )}
 
-            {/* Painel de prontidão + PMC resumido */}
-            <Card style={{ marginBottom:12, display:'flex', gap:16, alignItems:'center', flexWrap:'wrap' }} pad={16}>
-              <Ring score={ultimo?.prontidao ?? null} />
-              <div style={{ flex:1, minWidth:220 }}>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:9, marginBottom:10 }}>
-                  <Stat label="TSB · forma" value={ultimo?.tsb ?? '—'}
-                    c={ultimo?.tsb>5?T.mint : ultimo?.tsb<-20?T.red : T.amber}
-                    sub={ultimo?.tsb>5?'Fresco' : ultimo?.tsb<-20?'Fadiga alta':'Construindo'} />
-                  <Stat label="ACWR" value={ultimo?.acwr ?? '—'} c={acwrSt.c} sub={acwrSt.txt} />
-                  <Stat label="ATL · aguda" value={ultimo?.atl ?? '—'} c={T.rasp} sub="média 7d" />
-                  <Stat label="CTL · fitness" value={ultimo?.ctl ?? '—'} c={T.cyan} sub="média 42d" />
-                </div>
-                {tendencia!=null && (
-                  <div style={{ fontSize:11, color:tendencia<-3?T.amber:T.t2, display:'flex', gap:6, alignItems:'center',
-                                borderLeft:`2px solid ${tendencia<-3?T.amber:T.brd2}`, paddingLeft:9 }}>
-                    {tendencia>0?<TrendingUp size={13}/>:tendencia<0?<TrendingDown size={13}/>:<Minus size={13}/>}
-                    Prontidão {tendencia>0?'subindo':tendencia<0?'caindo':'estável'} {tendencia>0?'+':''}{tendencia} pts na semana
-                  </div>
-                )}
+            {/* Absorção da carga — NOVO */}
+            <Secao id="absorcao" titulo="Absorção da carga" icon={Gauge} cor={nivelCor(leituraAbsorcao.nivel)}
+              aberta={secoesAbertas.absorcao} onToggle={()=>toggleSecao('absorcao')}
+              peek={absorcao ? `${absorcao.score}% · ${leituraAbsorcao.txt.split('.')[0]}.` : leituraAbsorcao.txt}>
+              <div style={{ fontSize:10.5, color:T.t3, marginBottom:11, lineHeight:1.5 }}>
+                O quanto o corpo está absorvendo a carga aplicada (adaptação) em vez de só acumulá-la (fadiga).
+                Cruza a tendência do ATL com a tendência da Prontidão na mesma janela — não é um número isolado,
+                é uma heurística própria (não é métrica clínica validada).
               </div>
-            </Card>
+              {absorcao ? (
+                <>
+                  <div style={{ display:'flex', alignItems:'baseline', gap:10 }}>
+                    <Big c={nivelCor(leituraAbsorcao.nivel)} size={38}>{absorcao.score}%</Big>
+                    <Pill cor={nivelCor(leituraAbsorcao.nivel)}>confiança {absorcao.confianca}</Pill>
+                  </div>
+                  <div style={{ fontSize:10, color:T.t3, fontFamily:T.mono, marginTop:6 }}>
+                    carga aguda {absorcao.slCarga>=0?'+':''}{absorcao.cargaRelSlopePct}%/dia · prontidão {absorcao.slPront>=0?'+':''}{absorcao.slPront}pt/dia · n={absorcao.n}
+                  </div>
+                </>
+              ) : null}
+              <CoachNote leitura={leituraAbsorcao} titulo="Leitura"/>
+            </Secao>
 
-            <Card style={{ marginBottom:12 }}>
-              <Eyebrow icon={Activity}>Prontidão · HRV · FC repouso</Eyebrow>
+            {/* Painel de prontidão + PMC resumido */}
+            <Secao id="prontidaoResumo" titulo="Prontidão · TSB · ACWR" icon={Gauge} cor={T.coral}
+              aberta={secoesAbertas.prontidaoResumo} onToggle={()=>toggleSecao('prontidaoResumo')}
+              peek={`Prontidão ${ultimo?.prontidao ?? '—'} · TSB ${ultimo?.tsb ?? '—'} · ACWR ${ultimo?.acwr ?? '—'} (${acwrSt.txt})`}>
+              <div style={{ display:'flex', gap:16, alignItems:'center', flexWrap:'wrap' }}>
+                <Ring score={ultimo?.prontidao ?? null} />
+                <div style={{ flex:1, minWidth:220 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:9, marginBottom:10 }}>
+                    <Stat label="TSB · forma" value={ultimo?.tsb ?? '—'}
+                      c={ultimo?.tsb>5?T.mint : ultimo?.tsb<-20?T.red : T.amber}
+                      sub={ultimo?.tsb>5?'Fresco' : ultimo?.tsb<-20?'Fadiga alta':'Construindo'} />
+                    <Stat label="ACWR" value={ultimo?.acwr ?? '—'} c={acwrSt.c} sub={acwrSt.txt} />
+                    <Stat label="ATL · aguda" value={ultimo?.atl ?? '—'} c={T.rasp} sub="média 7d" />
+                    <Stat label="CTL · fitness" value={ultimo?.ctl ?? '—'} c={T.cyan} sub="média 42d" />
+                  </div>
+                  {tendencia!=null && (
+                    <div style={{ fontSize:11, color:tendencia<-3?T.amber:T.t2, display:'flex', gap:6, alignItems:'center',
+                                  borderLeft:`2px solid ${tendencia<-3?T.amber:T.brd2}`, paddingLeft:9 }}>
+                      {tendencia>0?<TrendingUp size={13}/>:tendencia<0?<TrendingDown size={13}/>:<Minus size={13}/>}
+                      Prontidão {tendencia>0?'subindo':tendencia<0?'caindo':'estável'} {tendencia>0?'+':''}{tendencia} pts na semana
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Secao>
+
+            <Secao id="prontidaoGrafico" titulo="Prontidão · HRV · FC repouso" icon={Activity}
+              aberta={secoesAbertas.prontidaoGrafico} onToggle={()=>toggleSecao('prontidaoGrafico')}
+              peek={leituraPront?.txt || 'Gráfico dos últimos 21 dias — abra pra ver a tendência.'}>
               <ResponsiveContainer width="100%" height={175}>
                 <ComposedChart data={prontSerie.slice(-21)} margin={{top:14,right:4,bottom:0,left:-24}}>
                   <defs>
@@ -2110,12 +2271,13 @@ function App() {
               </ResponsiveContainer>
               <Legenda itens={[[T.coral,'Prontidão'],[T.violet,'rMSSD'],[T.rasp,'FC repouso']]}/>
               <CoachNote leitura={leituraPront} titulo="Tendência da curva"/>
-            </Card>
+            </Secao>
 
             {ultimo?.partes && (
-              <Card>
-                <Eyebrow icon={Gauge}>Composição do escore · {ultimo.data.split('-').reverse().slice(0,2).join('/')}</Eyebrow>
-                <div style={{ marginTop:11, display:'flex', flexDirection:'column', gap:9 }}>
+              <Secao id="composicao" titulo={`Composição do escore · ${ultimo.data.split('-').reverse().slice(0,2).join('/')}`} icon={Gauge}
+                aberta={secoesAbertas.composicao} onToggle={()=>toggleSecao('composicao')}
+                peek={ultimo.partes.map(p=>`${p.k} ${Math.round(p.v)}`).join(' · ')}>
+                <div style={{ display:'flex', flexDirection:'column', gap:9 }}>
                   {ultimo.partes.map(p => (
                     <div key={p.k}>
                       <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, marginBottom:4 }}>
@@ -2129,7 +2291,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-              </Card>
+              </Secao>
             )}
           </>
         )}
@@ -2153,24 +2315,13 @@ function App() {
             </Card>
             {(() => {
               const e = diario[dataSel] || {};
-              const NumIn = ({ k, l, u, s=1 }) => (
-                <div>
-                  <div style={{ fontSize:10, color:T.t2, marginBottom:4 }}>
-                    {l} <span style={{ color:T.t3, fontFamily:T.mono }}>{u}</span>
-                  </div>
-                  <input type="number" step={s} value={e[k] ?? ''} placeholder="—"
-                    onChange={ev=>setCampo(k, ev.target.value)}
-                    style={{ width:'100%', background:T.lift, border:`1px solid ${T.brd2}`, borderRadius:8,
-                             padding:'9px 11px', color:T.t1, fontSize:14, fontFamily:T.mono, fontWeight:600, outline:'none' }}/>
-                </div>
-              );
               const S = (props) => <Slider {...props} value={e[props.k] ?? null} onChange={v=>setCampo(props.k, v)}/>;
               return (
                 <>
                   <Card style={{ marginBottom:10 }}>
                     <Eyebrow icon={Scale}>Peso corporal · da balança, em jejum</Eyebrow>
                     <div style={{ marginTop:10 }}>
-                      <NumIn k="peso" l="Peso" u="kg" s={0.1}/>
+                      <DiarioNumInput k="peso" l="Peso" u="kg" s={0.1} value={e.peso} onCommit={setCampo}/>
                     </div>
                     <div style={{ fontSize:9.5, color:T.t3, marginTop:8, lineHeight:1.5 }}>
                       Pesa-te sempre no mesmo horário (ideal: ao acordar, após o banheiro, antes de comer).
@@ -2180,8 +2331,8 @@ function App() {
                   <Card style={{ marginBottom:10 }}>
                     <Eyebrow icon={HeartPulse}>Autonômico · da manhã, deitado</Eyebrow>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:9, marginTop:10 }}>
-                      <NumIn k="fc" l="FC repouso" u="bpm"/>
-                      <NumIn k="rmssd" l="HRV (rMSSD)" u="ms"/>
+                      <DiarioNumInput k="fc" l="FC repouso" u="bpm" value={e.fc} onCommit={setCampo}/>
+                      <DiarioNumInput k="rmssd" l="HRV (rMSSD)" u="ms" value={e.rmssd} onCommit={setCampo}/>
                     </div>
                   </Card>
                   <Card style={{ marginBottom:10 }}>
@@ -2206,8 +2357,8 @@ function App() {
                   <Card>
                     <Eyebrow icon={Flame}>Carga do dia · sRPE</Eyebrow>
                     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:9, marginTop:10 }}>
-                      <NumIn k="cargaCorrida" l="Corrida" u="ua" s={5}/>
-                      <NumIn k="cargaMuscu" l="Musculação" u="ua" s={5}/>
+                      <DiarioNumInput k="cargaCorrida" l="Corrida" u="ua" s={5} value={e.cargaCorrida} onCommit={setCampo}/>
+                      <DiarioNumInput k="cargaMuscu" l="Musculação" u="ua" s={5} value={e.cargaMuscu} onCommit={setCampo}/>
                     </div>
                     <div style={{ fontSize:10, color:T.t3, marginTop:8, lineHeight:1.5 }}>
                       A corrida preenche sozinha quando você grava o sRPE na aba Treinos. Musculação: RPE da sessão (0–10) × minutos.
@@ -2623,6 +2774,7 @@ function App() {
                       ['distKm','Distância (km)','number'], ['duracaoMin','Duração (min)','number'],
                       ['fcMedia','FC média (bpm)','number'], ['fcMax','FC máx (bpm, opcional)','number'],
                       ['elevM','Elevação (m)','number'], ['altitudeM','Altitude (m)','number'],
+                      ['kcal','Kcal do relógio (opcional)','number'],
                     ].map(([k,l,type]) => (
                       <div key={k}>
                         <div style={{ fontSize:9.5, color:T.t2, marginBottom:4 }}>{l}</div>
@@ -2688,12 +2840,13 @@ function App() {
                       sem distribuição de zonas · lançamento manual
                     </div>
                   )}
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:7, marginBottom:11 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(72px,1fr))', gap:7, marginBottom:11 }}>
                     {[
                       { l:'FC méd', v:tr.fcMedia, c:zoneColor(zoneOf(tr.fcMedia)) },
                       { l:'FC máx', v:tr.fcMax, c:zoneColor(zoneOf(tr.fcMax)) },
                       { l:'Pace', v:`${Math.floor(tr.paceSeg/60)}:${String(tr.paceSeg%60).padStart(2,'0')}`, c:T.t1 },
                       { l:'Elev', v:`+${Math.round(tr.elevM)}`, c:T.t1 },
+                      ...(tr.kcal ? [{ l:'Kcal', v:tr.kcal, c:T.coral }] : []),
                     ].map(m => (
                       <div key={m.l} style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:8, padding:'7px 9px' }}>
                         <div style={{ fontSize:8, color:T.t3, fontFamily:T.mono, textTransform:'uppercase', letterSpacing:.5 }}>{m.l}</div>
@@ -2762,15 +2915,53 @@ function App() {
           const melhor = logsAtual.length ? Math.max(...logsAtual.map(l=>l.valor)) : null;
           const pct = melhor!=null ? Math.min(100, Math.round(melhor/atual.target*100)) : 0;
           const fmtData = iso => iso.split('-').reverse().join('/');
+
+          /* Visão concomitante — as duas trilhas rodam na mesma janela (ANCORA_SKILLS),
+             então mostramos o estágio atual de ambas lado a lado, sempre visível,
+             independente de qual trilha está selecionada pra registro/detalhe abaixo. */
+          const resumoTrilha = (nome, dados, cor, id) => {
+            const at = dados.etapas[dados.atualIdx];
+            const logs = caliLogs[at.id] || [];
+            const best = logs.length ? Math.max(...logs.map(l=>l.valor)) : null;
+            const p = best!=null ? Math.min(100, Math.round(best/at.target*100)) : 0;
+            return (
+              <button key={id} onClick={()=>setTrilhaSel(id)}
+                style={{ flex:1, textAlign:'left', background:T.card, border:`1px solid ${trilhaSel===id?cor:T.brd}`,
+                         borderRadius:11, padding:'11px 12px', cursor:'pointer' }}>
+                <div style={{ fontSize:9, color:T.t3, fontFamily:T.mono, textTransform:'uppercase', letterSpacing:.6 }}>{nome}</div>
+                <div style={{ fontSize:12.5, fontWeight:800, color:T.t1, marginTop:3, lineHeight:1.3 }}>
+                  {at.num?`#${at.num} `:''}{at.nome}
+                </div>
+                <div style={{ height:5, background:T.brd, borderRadius:3, marginTop:7, overflow:'hidden' }}>
+                  <div style={{ width:`${p}%`, height:'100%', borderRadius:3, background:cor }}/>
+                </div>
+                <div style={{ fontSize:9.5, color:T.t3, fontFamily:T.mono, marginTop:5 }}>
+                  {best!=null ? `${best}${at.metric==='hold_s'?'s':at.metric==='angulo'?'°':' reps'} · ${p}%` : 'sem registro ainda'}
+                </div>
+              </button>
+            );
+          };
           return (
             <>
+              <Card style={{ marginBottom:12 }}>
+                <Eyebrow icon={Sparkles}>Progresso concomitante</Eyebrow>
+                <div style={{ fontSize:10.5, color:T.t3, marginTop:4, marginBottom:10, lineHeight:1.5 }}>
+                  As duas trilhas correm na mesma janela de tempo — puxada/empurrada (Muscle-Up) e estáticas (Planche)
+                  treinam padrões diferentes, então avançam juntas sem competir.
+                </div>
+                <div style={{ display:'flex', gap:9 }}>
+                  {resumoTrilha('Planche', trilhaPlanche, T.cyan, 'planche')}
+                  {resumoTrilha('Muscle-Up', trilhaMuscleUp, T.coral, 'muscleup')}
+                </div>
+              </Card>
+
               <div style={{ display:'flex', gap:8, marginBottom:12 }}>
                 {[['planche','Planche'],['muscleup','Muscle-Up']].map(([id,nome]) => (
                   <button key={id} onClick={()=>setTrilhaSel(id)}
                     style={{ flex:1, background: trilhaSel===id?T.coral:T.lift, border:`1px solid ${trilhaSel===id?T.coral:T.brd2}`,
                              borderRadius:9, padding:'9px', fontSize:12.5, fontWeight:800,
                              color: trilhaSel===id?T.deep:T.t2, cursor:'pointer' }}>
-                    {nome}
+                    {nome} <span style={{ fontSize:9.5, fontWeight:600, opacity:.75 }}>· detalhes</span>
                   </button>
                 ))}
               </div>
@@ -2780,7 +2971,7 @@ function App() {
                 <div style={{ fontSize:12, color:T.t2, marginTop:6, lineHeight:1.6 }}>
                   {trilhaSel==='planche'
                     ? 'Progressão de longo prazo em calistenia estática, à parte do treino de força e da corrida. As janelas de tempo são estimativas — planche em especial varia bastante de pessoa pra pessoa. Total estimado da trilha completa: ~12–18 meses, com folga individual entre etapas.'
-                    : 'Progressão de puxada + empurrada até a transição completa da muscle-up. Roda junto com a trilha de Planche — treinam grupos musculares e padrões de movimento diferentes, cabem nos mesmos dias de calistenia.'}
+                    : 'Progressão de puxada + empurrada até a transição completa da muscle-up. Roda concomitante com a trilha de Planche, no mesmo calendário — treinam grupos musculares e padrões de movimento diferentes, cabem nos mesmos dias de calistenia sem disputar recuperação entre si.'}
                 </div>
               </Card>
 
@@ -2976,6 +3167,7 @@ Pra cada atividade de corrida (Run) nova:
 3. Calcule: FC média e máxima, pace médio (segundos/km), altitude média, grade média absoluta, distribuição de zonas em % usando estas faixas de FC: Z1 ≤138, Z2 139–152, LT1 153–162, CINZA 163–167, LT2 168–174, VO2 ≥175.
 4. Calcule o sRPE pelo método: RPE base pela FC média (tabela Foster) + modificador de altitude (+1,2 por 1000m acima de 500m) + modificador de calor pelo horário (13–17h: +0,4 · 17–20h: +0,2 · antes das 9h: −0,1) + modificador de terreno (grade média >5%: +0,6 · >3%: +0,3). RPE total × duração em minutos = sRPE.
 5. Preencha também a entrada correspondente em "entries" com o campo cargaCorrida = sRPE calculado.
+6. Pegue o campo "calories" (ou "total_calories") do resumo da atividade no Strava — é a calorimetria real do relógio — e inclua como "kcal" no treino. Se não vier, deixe null (não estime, o app já tem fallback próprio pra isso).
 
 Formato exato de saída:
 {
@@ -2997,6 +3189,7 @@ Formato exato de saída:
       "gradeMedio": <número>,
       "cadencia": <passos/min total>,
       "re": <relative_effort do Strava>,
+      "kcal": <calorias reais do resumo do Strava, ou null se não vier>,
       "zonas": { "Z1":n, "Z2":n, "LT1":n, "CINZA":n, "LT2":n, "VO2":n }
     }
   ]
