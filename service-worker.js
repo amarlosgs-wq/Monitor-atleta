@@ -1,34 +1,53 @@
-// Service worker mínimo — existe principalmente para satisfazer o critério
-// de instalação do Chrome (precisa de um SW ativo com fetch handler).
-// Estratégia: network-first com fallback pro cache, então o app sempre
-// tenta pegar a versão mais nova quando há internet.
+// Monitor Atleta — Service Worker
+// Estratégia: NETWORK-FIRST para tudo. Isso significa que o app SEMPRE tenta
+// buscar a versão mais nova no servidor primeiro; só usa o cache guardado se
+// estiver sem internet. Isso evita o problema clássico de "atualizei o site
+// mas continua aparecendo a versão velha" — o cache aqui é rede de segurança
+// pra modo offline, não a fonte principal.
 
-const CACHE = "monitor-atleta-v1";
-const SHELL = ["./", "./index.html", "./manifest.json"];
+const CACHE_VERSION = 'monitor-atleta-v2'; // ⚠️ troque esse número toda vez que
+                                            // fizer uma mudança grande — isso
+                                            // força todo mundo a pegar a versão nova
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.json',
+];
 
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
+self.addEventListener('install', (event) => {
+  // não espera as abas antigas fecharem — assume a versão nova imediatamente
   self.skipWaiting();
-});
-
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL)).catch(() => {})
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
-        return res;
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(
+        names
+          .filter((name) => name !== CACHE_VERSION) // apaga QUALQUER cache de versão antiga
+          .map((name) => caches.delete(name))
+      )
+    ).then(() => self.clients.claim()) // assume controle das abas já abertas na hora
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // sucesso online: guarda uma cópia fresca no cache e devolve a resposta da rede
+        const copy = response.clone();
+        caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy)).catch(() => {});
+        return response;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() =>
+        // sem internet: tenta achar no cache; se não tiver, deixa falhar mesmo
+        caches.match(event.request).then((cached) => cached || Promise.reject('offline e sem cache'))
+      )
   );
 });
