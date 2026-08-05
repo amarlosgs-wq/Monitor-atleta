@@ -2,6 +2,22 @@
 
 Todas as mudanças relevantes do Monitor Atleta ficam registradas aqui.
 
+## [1.6.1] — Rede de segurança contra tela preta
+### Adicionado
+- Error Boundary no React: se qualquer componente quebrar durante o render, mostra a mensagem de erro na tela (com botão de recarregar) em vez de deixar tudo preto sem explicação
+- Handler global de erro (`window.onerror`) que cobre falhas antes mesmo do React montar (ex.: CDN não carregou)
+### Nota
+- Não foi possível reproduzir o bug relatado (tela preta) por análise estática — sintaxe validada, sem erros de parse. Com a rede de segurança em produção, o próximo crash (se houver) vai aparecer com a mensagem exata na tela.
+
+## [1.6.0] — Terça só LT2, quinta com força + Chave 2, e trilha de skills
+### Mudado
+- Musculação 2 (Full Body moderado) saiu de terça e foi pra quinta, antes da Chave 2 (LT1) com intervalo de 15–20min — terça fica 100% livre de força pra Chave 1 (LT2) rodar com o SNC fresco
+- Zonas de FC e paces das sessões-chave permanecem exatamente os mesmos (LT2 168–174, LT1 153–162) — nenhuma mudança na estrutura de corrida
+### Adicionado
+- Alerta de validação de HRV no card do dia às quintas: compara o HRV da manhã com a baseline (−5%) e recomenda reduzir RPE da força / cortar a Chave 2 pra Z2 se vier baixo
+- Nova aba **Skills**: trilha de progressão de calistenia de longo prazo (Crow Pose → Dips+Archer → Planche Lean → Tuck → Straddle → Full), com roadmap visual, registro de hold/reps/ângulo por etapa, leitura de tendência e guia de execução
+- Persistência própria da trilha de skills (independente do diário/treinos)
+
 ## [1.5.0] — Peso corporal, resumo calórico semanal e lançamento manual
 ### Adicionado
 - Registro de peso corporal no Diário (balança, em jejum)
