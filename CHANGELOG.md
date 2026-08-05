@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do Monitor Atleta ficam registradas aqui.
 
+## [1.7.0] — Trilha de Muscle-Up + Fundamentos de força
+### Adicionado
+- Nova trilha **Muscle-Up** na aba Skills, paralela à de Planche: Barra Fixa (pull-up estrito) → Paralela (dips estrito) → False Grip + Negativas → Transição Assistida → Primeira Muscle-Up → Muscle-Up Volume
+- Seletor de trilha (Planche / Muscle-Up) no topo da aba Skills — mesmo roadmap, registro e leitura de progresso pra qualquer uma das duas
+- Card **Fundamentos de força**: barra fixa, paralela, flexões e core — registro contínuo de melhor marca, sem prazo, sustentando as duas trilhas
+- Novo bloco "Fundamentos: Barra Fixa + Paralela + Flexões" na sessão de Calistenia 1 (quarta)
+- Referência direta à trilha Muscle-Up no bloco de muscle-up da Calistenia 2 (sexta)
+
 ## [1.6.1] — Rede de segurança contra tela preta
 ### Adicionado
 - Error Boundary no React: se qualquer componente quebrar durante o render, mostra a mensagem de erro na tela (com botão de recarregar) em vez de deixar tudo preto sem explicação
