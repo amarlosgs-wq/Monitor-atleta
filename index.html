@@ -1306,6 +1306,13 @@ const Slider = ({ label, hint, value, min, max, step=1, cor=T.coral, fmt, onChan
       </div>
       <input type="range" className="mslider" min={min} max={max} step={step}
         value={v==null ? min : v} onChange={e=>handle(e.target.value)}
+        onPointerDown={() => {
+          // se um input numérico (com teclado aberto) ainda estiver focado de uma
+          // digitação anterior, tira o foco na hora — senão o teclado fica cobrindo
+          // a tela e atrapalha o arrasto do slider.
+          const ativo = document.activeElement;
+          if (ativo && ativo.tagName === 'INPUT' && ativo.type === 'number') ativo.blur();
+        }}
         style={{ '--fill':cor, background:`linear-gradient(90deg, ${cor} ${pct}%, ${T.brd} ${pct}%)` }}/>
     </div>
   );
