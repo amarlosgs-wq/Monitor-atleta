@@ -367,11 +367,11 @@ const FORCA_SEMANA = {
         { ex:'Prancha nos punhos', s:'3x', r:'20–30 seg', c:'PC', d:'30 seg', o:'Constrói tolerância antes de carregar peso de verdade' },
       ]},
       { t:'🤸 Handstand — etapa atual da trilha', itens:[
-        { ex:'Pike hold / Chest-to-wall / Kick-up livre', s:'4x', r:'ver Skills', c:'PC', d:'90 seg', o:'Faça a etapa que está ativa na aba Skills → Handstand. Chest-to-wall (barriga pra parede) é a versão correta: ensina linha reta, não banana' },
+        { ex:'Handstand — etapa da trilha', s:'—', r:'ver prescrição acima ↑', c:'PC', d:'90 seg', o:'Séries e tempo estão no card de prescrição no topo. Chest-to-wall (barriga pra parede) é a versão correta: ensina linha reta, não banana' },
         { ex:'Tentativas de equilíbrio livre', s:'—', r:'8–10 tentativas curtas', c:'PC', d:'45 seg', o:'Handstand melhora com frequência alta e volume baixo — muitas tentativas curtas batem poucas longas' },
       ]},
       { t:'🤸 Planche — etapa atual da trilha', itens:[
-        { ex:'Prancha escapular / Lean / Tuck', s:'4x', r:'ver Skills', c:'PC', d:'2 min', o:'Faça a etapa ativa em Skills → Planche. Escápulas SEMPRE protraídas, quadril alto' },
+        { ex:'Planche — etapa da trilha', s:'—', r:'ver prescrição acima ↑', c:'PC', d:'2 min', o:'Séries e tempo estão no card de prescrição no topo. Escápulas SEMPRE protraídas, quadril alto' },
         { ex:'Hollow body hold', s:'3x', r:'30–45 seg', c:'PC', d:'45 seg', o:'Core rígido é pré-requisito compartilhado de planche e front lever' },
       ]},
       { t:'🏋️ Fundamentos de empurrar', itens:[
@@ -391,11 +391,11 @@ const FORCA_SEMANA = {
         { ex:'Dead hang', s:'2x', r:'30 seg', c:'PC', d:'45 seg', o:'Solta o ombro e prepara a pegada' },
       ]},
       { t:'🤸 Front Lever — etapa atual da trilha', itens:[
-        { ex:'Scapular pull-up / Tuck / Advanced tuck', s:'4x', r:'ver Skills', c:'PC', d:'2 min', o:'Faça a etapa ativa em Skills → Front Lever. Braço RETO sempre — se dobrou, a série acabou' },
+        { ex:'Front Lever — etapa da trilha', s:'—', r:'ver prescrição acima ↑', c:'PC', d:'2 min', o:'Séries e tempo estão no card de prescrição no topo. Braço RETO sempre — se dobrou, a série acabou' },
         { ex:'Negativa de front lever', s:'3x', r:'3–5 (5s cada)', c:'PC', d:'2 min', o:'Abre a alavanca devagar, controlando a descida — ensina a posição melhor que hold puro' },
       ]},
       { t:'💪 Muscle-Up — etapa atual da trilha', itens:[
-        { ex:'False grip hold / Negativas / Transição', s:'4x', r:'ver Skills', c:'PC ou banda', d:'2 min', o:'Faça a etapa ativa em Skills → Muscle-Up. O cotovelo GIRA por baixo, não empurra pra cima' },
+        { ex:'Muscle-Up — etapa da trilha', s:'—', r:'ver prescrição acima ↑', c:'PC ou banda', d:'2 min', o:'Séries e tempo estão no card de prescrição no topo. O cotovelo GIRA por baixo, não empurra pra cima' },
         { ex:'Pull-up explosivo', s:'4x', r:'4–6', c:'PC', d:'2 min', o:'Puxe até a barra chegar no peito/abdômen — quanto mais alto, menos transição você precisa inventar' },
       ]},
       { t:'🏋️ Fundamentos de puxar', itens:[
@@ -1264,6 +1264,32 @@ function calcTrilhaSkills(etapasDef, hoje = hojeISO()) {
   return { etapas, atualIdx: atualIdx===-1 ? etapas.length-1 : atualIdx };
 }
 
+/* Resolve a PRESCRIÇÃO DO DIA de uma trilha: qual etapa, qual semana dentro dela, e qual
+   fase (séries/reps/RPE) corresponde a essa semana. É isso que transforma "ver Skills"
+   em "3x 12–15s · RPE 7" direto no card do dia — sem obrigar a sair da tela. */
+function prescricaoSkillHoje(trilha, hoje = hojeISO()) {
+  if (!trilha?.etapas?.length) return null;
+  const et = trilha.etapas[trilha.atualIdx];
+  if (!et) return null;
+  const hojeD = new Date(hoje + 'T12:00:00');
+  const iniD = new Date(et.inicio + 'T12:00:00');
+  const semanaNaEtapa = Math.max(1, Math.floor((hojeD - iniD) / (7*86400000)) + 1);
+
+  /* acha a fase cujo rótulo de semana cobre a semana atual — aceita '1', '1–2', '1–3' */
+  let fase = null;
+  if (et.fases?.length) {
+    fase = et.fases.find(f => {
+      const txt = String(f.semana).replace(/–|—/g, '-');
+      if (txt.includes('-')) {
+        const [a,b] = txt.split('-').map(x => parseInt(x.trim(), 10));
+        return semanaNaEtapa >= a && semanaNaEtapa <= b;
+      }
+      return parseInt(txt, 10) === semanaNaEtapa;
+    }) || et.fases[Math.min(et.fases.length - 1, Math.floor((semanaNaEtapa - 1) / Math.max(1, Math.ceil((et.semanas||et.fases.length) / et.fases.length))))];
+  }
+  return { etapa: et, semanaNaEtapa, totalSemanas: et.semanas, fase };
+}
+
 function lerProgressoSkill(stage, logs) {
   if (!logs || !logs.length) return { nivel:'info',
     txt:`Sem registros ainda pra ${stage.nome}. Anota o primeiro hold/tentativa de hoje — é o ponto de partida da curva.` };
@@ -1597,8 +1623,94 @@ const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const tipoIcone = tipo => tipo==='Chave'?Zap : tipo==='Teste'?Flag : tipo==='Longo'?Route : tipo==='Cross'?Bike : Footprints;
 
 /* Card de Força & Calistenia — reaproveitado na aba Hoje e na aba Plano */
-function ForcaCard({ sessao, dowLabel, aberta, onToggle }) {
+/* Prescrição do dia de uma skill — o que substituiu o "ver Skills" genérico.
+   Mostra: etapa atual, semana X de Y dentro da etapa, e a linha exata de séries/reps/RPE
+   daquela semana, além do progresso vs. meta. Design: barra lateral na cor da trilha,
+   número grande pro que importa (a prescrição), metadados em mono pequeno. */
+function SkillHoje({ trilhaKey, TRILHAS, caliLogs }) {
+  const t = TRILHAS[trilhaKey];
+  if (!t) return null;
+  const p = prescricaoSkillHoje(t.dados);
+  if (!p) return null;
+  const { etapa, semanaNaEtapa, totalSemanas, fase } = p;
+  const logs = caliLogs[etapa.id] || [];
+  const best = logs.length ? Math.max(...logs.map(l => l.valor)) : null;
+  const un = etapa.metric === 'hold_s' ? 's' : etapa.metric === 'angulo' ? '°' : ' reps';
+  const pct = best != null ? Math.min(100, Math.round(best / etapa.target * 100)) : 0;
+
+  return (
+    <div style={{ background:T.card, border:`1px solid ${T.brd}`, borderLeft:`3px solid ${t.cor}`,
+                  borderRadius:10, padding:'11px 13px', marginBottom:8 }}>
+      {/* cabeçalho: trilha + posição na etapa */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+        <span style={{ fontSize:9.5, fontFamily:T.mono, color:t.cor, fontWeight:700,
+                       letterSpacing:.7, textTransform:'uppercase' }}>{t.nome}</span>
+        <span style={{ fontSize:9, fontFamily:T.mono, color:T.t3 }}>
+          {totalSemanas ? `semana ${semanaNaEtapa}/${totalSemanas}` : 'consolidação'} · {etapa.nivel}
+        </span>
+      </div>
+
+      {/* nome da etapa — o "o quê" */}
+      <div style={{ fontSize:14, fontWeight:800, color:T.t1, marginTop:5, lineHeight:1.3 }}>
+        {etapa.nome}
+      </div>
+
+      {/* a prescrição — o "quanto", em destaque */}
+      {fase ? (
+        <div style={{ background:T.lift, borderRadius:8, padding:'9px 11px', marginTop:8 }}>
+          <div style={{ fontSize:8.5, fontFamily:T.mono, color:T.t3, letterSpacing:.6,
+                        textTransform:'uppercase', marginBottom:4 }}>Faça hoje</div>
+          <div style={{ fontFamily:T.disp, fontSize:19, color:t.cor, letterSpacing:.4, lineHeight:1.2 }}>
+            {fase.series} · {fase.hold}
+          </div>
+          <div style={{ fontSize:10, fontFamily:T.mono, color:T.t2, marginTop:4 }}>
+            RPE {fase.rpe} · meta da etapa: {etapa.target}{un}
+          </div>
+          {fase.milestone && (
+            <div style={{ fontSize:10.5, color:T.mint, marginTop:6, display:'flex', gap:5, alignItems:'flex-start' }}>
+              <Flag size={11} style={{ flexShrink:0, marginTop:1 }}/>{fase.milestone}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{ fontSize:11, color:T.t2, marginTop:7 }}>
+          Etapa de consolidação — mantenha o volume atual com foco em qualidade.
+        </div>
+      )}
+
+      {/* progresso vs meta */}
+      <div style={{ marginTop:9 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', fontSize:9.5,
+                      fontFamily:T.mono, color:T.t3, marginBottom:4 }}>
+          <span>{best != null ? `melhor: ${best}${un}` : 'sem registro ainda'}</span>
+          <span>{pct}% da meta</span>
+        </div>
+        <div style={{ height:4, background:T.brd, borderRadius:2, overflow:'hidden' }}>
+          <div style={{ width:`${pct}%`, height:'100%', background:t.cor, borderRadius:2 }}/>
+        </div>
+      </div>
+
+      {/* 2 pontos-chave de execução — o "como", sem precisar abrir outra aba */}
+      {etapa.guia?.length > 0 && (
+        <div style={{ marginTop:9, paddingTop:9, borderTop:`1px solid ${T.brd}` }}>
+          {etapa.guia.slice(0,2).map((g,i) => (
+            <div key={i} style={{ display:'flex', gap:7, fontSize:10.5, color:T.t2,
+                                  lineHeight:1.5, marginBottom:i===0?4:0 }}>
+              <span style={{ color:t.cor, flexShrink:0 }}>·</span>{g}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ForcaCard({ sessao, dowLabel, aberta, onToggle, dow, TRILHAS, caliLogs }) {
   if (!sessao) return null;
+  /* Quarta treina Handstand+Planche, sexta treina Front Lever+Muscle-Up.
+     Nesses dias, mostramos a prescrição exata da semana atual de cada trilha
+     direto no card — sem mandar o atleta pra outra aba pra descobrir o quanto fazer. */
+  const skillsDoDia = dow===3 ? ['handstand','planche'] : dow===5 ? ['frontlever','muscleup'] : [];
   return (
     <Card style={{ marginBottom:12, borderLeft:`3px solid ${sessao.cor}`, overflow:'hidden' }} pad={0}>
       <div style={{ padding:'15px 17px 13px' }}>
@@ -1630,6 +1742,19 @@ function ForcaCard({ sessao, dowLabel, aberta, onToggle }) {
           </div>
         </div>
       </div>
+
+      {/* Prescrição das skills do dia — visível sem precisar expandir nada */}
+      {skillsDoDia.length > 0 && TRILHAS && (
+        <div style={{ padding:'0 17px 13px' }}>
+          <div style={{ fontSize:9, fontFamily:T.mono, color:T.t3, letterSpacing:.8,
+                        textTransform:'uppercase', marginBottom:8 }}>
+            Skills de hoje · prescrição da semana
+          </div>
+          {skillsDoDia.map(k => (
+            <SkillHoje key={k} trilhaKey={k} TRILHAS={TRILHAS} caliLogs={caliLogs || {}}/>
+          ))}
+        </div>
+      )}
       <button onClick={onToggle} style={{
         width:'100%', background:T.lift, border:'none', borderTop:`1px solid ${T.brd}`,
         padding:'10px', color:sessao.cor, fontSize:12, fontWeight:700, cursor:'pointer',
@@ -2250,6 +2375,7 @@ function App() {
 
             {/* Força & Calistenia de hoje — junto da corrida, no topo, como sessão prioritária do dia */}
             <ForcaCard sessao={sessaoForcaHoje} dowLabel={DIAS[new Date(hojeISO()+'T12:00:00').getDay()]}
+              dow={new Date(hojeISO()+'T12:00:00').getDay()} TRILHAS={TRILHAS} caliLogs={caliLogs}
               aberta={openForca} onToggle={()=>setOpenForca(!openForca)} />
 
             {/* ═══ Alerta calórico & jejum — periodizado pela demanda do dia ═══ */}
@@ -3096,6 +3222,7 @@ function App() {
           const leitura = lerProgressoSkill(atual, logsAtual);
           const melhor = logsAtual.length ? Math.max(...logsAtual.map(l=>l.valor)) : null;
           const pct = melhor!=null ? Math.min(100, Math.round(melhor/atual.target*100)) : 0;
+          const presc = prescricaoSkillHoje(trilhaAtiva.dados);
           const fmtData = iso => iso.split('-').reverse().join('/');
 
           /* Visão concomitante — as quatro trilhas rodam na mesma janela (ANCORA_SKILLS),
@@ -3200,18 +3327,43 @@ function App() {
               </Card>
 
               {/* Etapa atual — registro e progresso */}
-              <Card style={{ marginBottom:12, borderLeft:`3px solid ${T.coral}` }}>
-                <Eyebrow c={T.coral} icon={Target}>
-                  Etapa atual {atual.num?`· #${atual.num}`:''} — {atual.nome}
+              <Card style={{ marginBottom:12, borderLeft:`3px solid ${trilhaAtiva.cor}` }}>
+                <Eyebrow c={trilhaAtiva.cor} icon={Target}>
+                  Etapa atual — {atual.nome}
                 </Eyebrow>
                 <div style={{ fontSize:10, color:T.t3, fontFamily:T.mono, marginTop:4 }}>
                   {fmtData(atual.inicio)}{atual.fim?` – ${fmtData(atual.fim)}`:''} · meta: {atual.target}{atual.metric==='hold_s'?'s':atual.metric==='angulo'?'°':' reps'}
+                  {presc?.totalSemanas ? ` · semana ${presc.semanaNaEtapa}/${presc.totalSemanas}` : ''}
                 </div>
+
+                {/* O QUE FAZER HOJE — em destaque, primeira coisa que se lê */}
+                {presc?.fase && (
+                  <div style={{ background:`linear-gradient(135deg, ${trilhaAtiva.cor}14, ${trilhaAtiva.cor}06)`,
+                                border:`1px solid ${trilhaAtiva.cor}40`, borderRadius:10,
+                                padding:'12px 14px', marginTop:12 }}>
+                    <div style={{ fontSize:8.5, fontFamily:T.mono, color:trilhaAtiva.cor, letterSpacing:.8,
+                                  textTransform:'uppercase', marginBottom:5, fontWeight:700 }}>
+                      Prescrição desta semana
+                    </div>
+                    <div style={{ fontFamily:T.disp, fontSize:26, color:T.t1, letterSpacing:.4, lineHeight:1.15 }}>
+                      {presc.fase.series} · {presc.fase.hold}
+                    </div>
+                    <div style={{ fontSize:10.5, fontFamily:T.mono, color:T.t2, marginTop:5 }}>
+                      RPE {presc.fase.rpe} · descanso completo entre séries
+                    </div>
+                    {presc.fase.milestone && (
+                      <div style={{ fontSize:11, color:T.mint, marginTop:8, display:'flex', gap:6,
+                                    alignItems:'flex-start', paddingTop:8, borderTop:`1px solid ${trilhaAtiva.cor}25` }}>
+                        <Flag size={12} style={{ flexShrink:0, marginTop:1 }}/>{presc.fase.milestone}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {melhor!=null && (
                   <>
                     <div style={{ height:8, background:T.brd, borderRadius:4, marginTop:12, overflow:'hidden' }}>
-                      <div style={{ width:`${pct}%`, height:'100%', borderRadius:4, background:`linear-gradient(90deg, ${T.cyan}, ${T.coral})` }}/>
+                      <div style={{ width:`${pct}%`, height:'100%', borderRadius:4, background:`linear-gradient(90deg, ${T.cyan}, ${trilhaAtiva.cor})` }}/>
                     </div>
                     <div style={{ fontSize:10, color:T.t3, fontFamily:T.mono, marginTop:5 }}>
                       melhor marca: {melhor}{atual.metric==='hold_s'?'s':atual.metric==='angulo'?'°':' reps'} · {pct}% da meta
@@ -3225,7 +3377,7 @@ function App() {
                     style={{ flex:1, background:T.lift, border:`1px solid ${T.brd2}`, borderRadius:8,
                              padding:'9px 11px', color:T.t1, fontSize:14, fontFamily:T.mono, fontWeight:600, outline:'none' }}/>
                   <button onClick={()=>registrarCali(atual.id, caliInput)}
-                    style={{ background:`linear-gradient(135deg, ${T.coral}, #E6532F)`, border:'none', borderRadius:8,
+                    style={{ background:`linear-gradient(135deg, ${trilhaAtiva.cor}, ${trilhaAtiva.cor}CC)`, border:'none', borderRadius:8,
                              padding:'0 16px', fontSize:12, fontWeight:800, color:T.deep, cursor:'pointer' }}>
                     Registrar
                   </button>
@@ -3265,19 +3417,30 @@ function App() {
                       Progressão por fase
                     </div>
                     <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
-                      {atual.fases.map(f => (
-                        <div key={f.semana} style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:8, padding:'8px 11px' }}>
-                          <div style={{ fontSize:11, fontWeight:700, color:T.t1 }}>Semana {f.semana}</div>
-                          <div style={{ fontSize:10.5, color:T.t2, fontFamily:T.mono, marginTop:2 }}>
-                            hold {f.hold} · RPE {f.rpe} · {f.series} séries
-                          </div>
-                          {f.milestone && (
-                            <div style={{ fontSize:10.5, color:T.mint, marginTop:4, display:'flex', gap:5, alignItems:'center' }}>
-                              <Flag size={10}/>{f.milestone}
+                      {atual.fases.map(f => {
+                        const ehAtual = presc?.fase && f.semana === presc.fase.semana;
+                        return (
+                          <div key={f.semana} style={{
+                            background: ehAtual ? trilhaAtiva.cor+'14' : T.lift,
+                            border:`1px solid ${ehAtual ? trilhaAtiva.cor+'55' : T.brd}`,
+                            borderRadius:8, padding:'8px 11px' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:7, flexWrap:'wrap' }}>
+                              <span style={{ fontSize:11, fontWeight:700, color: ehAtual ? trilhaAtiva.cor : T.t1 }}>
+                                Semana {f.semana}
+                              </span>
+                              {ehAtual && <Pill cor={trilhaAtiva.cor}>você está aqui</Pill>}
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            <div style={{ fontSize:10.5, color:T.t2, fontFamily:T.mono, marginTop:2 }}>
+                              {f.series} · {f.hold} · RPE {f.rpe}
+                            </div>
+                            {f.milestone && (
+                              <div style={{ fontSize:10.5, color:T.mint, marginTop:4, display:'flex', gap:5, alignItems:'center' }}>
+                                <Flag size={10}/>{f.milestone}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -3479,6 +3642,7 @@ Se alguma atividade não tiver stream de FC, pule ela e me avise fora do JSON (n
 
               {sSelForca && (
                 <ForcaCard sessao={sSelForca} dowLabel={`${DIAS[new Date(dataSel+'T12:00:00').getDay()]} ${dataSel.split('-').reverse().slice(0,2).join('/')}`}
+                  dow={new Date(dataSel+'T12:00:00').getDay()} TRILHAS={TRILHAS} caliLogs={caliLogs}
                   aberta={openForca} onToggle={()=>setOpenForca(!openForca)} />
               )}
 
