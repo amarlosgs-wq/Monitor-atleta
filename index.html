@@ -155,81 +155,81 @@ const zoneColor = k => ZONES.find(z => z.k === k)?.c || T.gray;
 const INICIO_M1 = '2026-07-06';
 
 const MICRO = {
-  1:{ dia:'SEG', rot:'Z2 fácil 40–50min + 6–8 strides', tipo:'Fácil', pace:'5:45–6:15', fc:[140,152], min:45, lib:'Z2', extra:'Calistenia / core leve' },
+  1:{ dia:'SEG', rot:'Z2 fácil 40–50min + 6–8 strides', tipo:'Fácil', pace:'5:40–6:20', fc:[140,152], min:45, lib:'Z2', extra:'Calistenia / core leve' },
   2:{ dia:'TER', rot:'CHAVE 1', tipo:'Chave', chave:1, lib:'LT2', extra:'Sem musculação — SNC 100% livre pro LT2' },
   3:{ dia:'QUA', rot:'Bike / Elíptico Z2 30–45min', tipo:'Cross', pace:'—', fc:[125,150], min:35, lib:'CROSS', extra:'Recuperativo · sem impacto' },
   4:{ dia:'QUI', rot:'CHAVE 2', tipo:'Chave', chave:2, lib:'LT1', extra:'Musculação 2 antes (intervalo 15–20min) — valide o HRV da manhã primeiro' },
-  5:{ dia:'SEX', rot:'Z2 fácil 40–50min + 6–8 strides', tipo:'Fácil', pace:'5:45–6:15', fc:[140,152], min:45, lib:'Z2', extra:'Full body / superior' },
-  6:{ dia:'SÁB', rot:'Longo progressivo', tipo:'Longo', pace:'5:30→5:15', fc:[140,162], min:60, lib:'LONGO', extra:'Sem qualidade nas 24h seguintes' },
+  5:{ dia:'SEX', rot:'Z2 fácil 40–50min + 6–8 strides', tipo:'Fácil', pace:'5:40–6:20', fc:[140,152], min:45, lib:'Z2', extra:'Full body / superior' },
+  6:{ dia:'SÁB', rot:'Longo progressivo', tipo:'Longo', pace:'5:25→5:05', fc:[140,162], min:60, lib:'LONGO', extra:'Sem qualidade nas 24h seguintes' },
   0:{ dia:'DOM', rot:'Bike / Elíptico Z2 ou descanso', tipo:'Cross', pace:'—', fc:[125,150], min:30, lib:'CROSS', extra:'Opcional · pernas leves p/ o dia seguinte' },
 };
 
 const MACRO = [
-  { k:'M1', nome:'Limiar Intensivo', emoji:'🟡', cor:T.amber, periodo:'Jul–Set 2026', meta:'~22:30',
-    foco:'Elevar o limiar de lactato (LT2). Hoje ~5:00/km @170bpm → meta ~4:45/km.',
+  { k:'M1', nome:'Limiar Intensivo', emoji:'🟡', cor:T.amber, periodo:'Jul–Set 2026', meta:'~22:30 ✓',
+    foco:'Elevar o limiar de lactato (LT2). Teste 09/09: 3km em 13:18 (VDOT 42,7) — limiar já em ~4:50/km.',
     musc:'Hipertrofia (8–12 reps). TER: inferior pesado APÓS correr. SEX: full body.',
     c1lib:'LT2', c2lib:'LT1',
     sem:[
-      {s:1,fase:'Adaptação',c1:'3×8min @ 5:05',c2:'20min @ 5:25',dom:'60min progressivo',vol:32,carga:'Mod',alerta:'Reentrada. Reconhecer os paces de limiar.'},
-      {s:2,fase:'Carga',c1:'4×8min @ 5:00',c2:'25min @ 5:25',dom:'70min progressivo',vol:37,carga:'Alta',alerta:'FC do LT2 deve ESTABILIZAR ~170, não escalar.'},
-      {s:3,fase:'Carga',c1:'5×8min @ 5:00',c2:'28min @ 5:22',dom:'75min progressivo',vol:41,carga:'M.Alta',alerta:'Pico de volume. Sono 8h+.'},
-      {s:4,fase:'Deload',c1:'3×8min @ 5:05',c2:'18min @ 5:25',dom:'55min Z2',vol:28,carga:'Leve',alerta:'DELOAD obrigatório. Supercompensação.'},
-      {s:5,fase:'Carga',c1:'4×10min @ 5:00',c2:'30min @ 5:22',dom:'80min progressivo',vol:43,carga:'Alta',alerta:'LT1 no piso: FC ≤162, conversável.'},
-      {s:6,fase:'Carga',c1:'5×10min @ 4:55',c2:'2×15min @ 5:20',dom:'85min progressivo',vol:46,carga:'M.Alta',alerta:'Pico do bloco. Cuide do sono e do HRV.'},
-      {s:7,fase:'Deload',c1:'3×10min @ 5:00',c2:'20min @ 5:22',dom:'60min Z2',vol:32,carga:'Leve',alerta:'DELOAD. Preparar terreno.'},
-      {s:8,fase:'Choque',c1:'4×12min @ 4:55',c2:'2×15min @ 5:18',dom:'90min progressivo',vol:48,carga:'M.Alta',alerta:'Última semana forte. Limiar mais rápido.'},
-      {s:9,fase:'Pré-teste',c1:'3×8min @ 4:50',c2:'25min @ 5:20',dom:'70min Z2',vol:38,carga:'Mod',alerta:'Reduz volume, mantém intensidade.'},
-      {s:10,fase:'TESTE',c1:'Ativação 15min + 4×100m',c2:'Z2 leve 25min',dom:'🏁 TESTE 3km',vol:22,carga:'Teste',alerta:'Meta ~22:30 no 5km. Valida o LT2.',teste:true},
+      {s:1,fase:'Adaptação',c1:'3×8min @ 4:47',c2:'20min @ 5:12',dom:'60min progressivo',vol:32,carga:'Mod',alerta:'Reentrada. Reconhecer os paces de limiar.'},
+      {s:2,fase:'Carga',c1:'4×8min @ 4:52',c2:'25min @ 5:12',dom:'70min progressivo',vol:37,carga:'Alta',alerta:'FC do LT2 deve ESTABILIZAR ~170, não escalar.'},
+      {s:3,fase:'Carga',c1:'5×8min @ 4:52',c2:'28min @ 5:02',dom:'75min progressivo',vol:41,carga:'M.Alta',alerta:'Pico de volume. Sono 8h+.'},
+      {s:4,fase:'Deload',c1:'3×8min @ 4:47',c2:'18min @ 5:12',dom:'55min Z2',vol:28,carga:'Leve',alerta:'DELOAD obrigatório. Supercompensação.'},
+      {s:5,fase:'Carga',c1:'4×10min @ 4:52',c2:'30min @ 5:02',dom:'80min progressivo',vol:43,carga:'Alta',alerta:'LT1 no piso: FC ≤162, conversável.'},
+      {s:6,fase:'Carga',c1:'5×10min @ 4:47',c2:'2×15min @ 5:08',dom:'85min progressivo',vol:46,carga:'M.Alta',alerta:'Pico do bloco. Cuide do sono e do HRV.'},
+      {s:7,fase:'Deload',c1:'3×10min @ 4:52',c2:'20min @ 5:02',dom:'60min Z2',vol:32,carga:'Leve',alerta:'DELOAD. Preparar terreno.'},
+      {s:8,fase:'Choque',c1:'4×12min @ 4:47',c2:'2×15min @ 5:06',dom:'90min progressivo',vol:48,carga:'M.Alta',alerta:'Última semana forte. Limiar mais rápido.'},
+      {s:9,fase:'Pré-teste',c1:'3×8min @ 4:47',c2:'25min @ 5:08',dom:'70min Z2',vol:38,carga:'Mod',alerta:'Reduz volume, mantém intensidade.'},
+      {s:10,fase:'TESTE',c1:'Ativação 15min + 4×100m',c2:'Z2 leve 25min',dom:'🏁 TESTE 3km',vol:22,carga:'Teste',alerta:'Teste feito em 09/09: 3km 13:18 · VDOT 42,7 · previsão 5k 22:51. Meta batida.',teste:true},
     ]},
-  { k:'M2', nome:'Base + Força', emoji:'🟢', cor:T.mint, periodo:'Set–Dez 2026', meta:'~21:45',
+  { k:'M2', nome:'Base + Força', emoji:'🟢', cor:T.mint, periodo:'Set–Dez 2026', meta:'~21:40',
     foco:'Construir o maior volume aeróbico do plano — levanta o teto onde o limiar encosta.',
     musc:'Força máxima (4–6 reps, cargas altas, menos volume).',
     c1lib:'LT2', c2lib:'LT1',
     sem:[
-      {s:1,fase:'Carga',c1:'4×10min @ 5:00',c2:'30min @ 5:20',dom:'80min prog',vol:46,carga:'Alta',alerta:'Base aeróbica crescendo.'},
-      {s:2,fase:'Carga',c1:'5×10min @ 5:00',c2:'35min @ 5:15',dom:'85min prog',vol:50,carga:'M.Alta',alerta:'Volume é o estímulo — fácil de verdade.'},
-      {s:3,fase:'Carga',c1:'4×12min @ 4:55',c2:'30min @ 5:15',dom:'90min prog',vol:52,carga:'Alta',alerta:'Força: transição p/ 4–6 reps.'},
-      {s:4,fase:'Deload',c1:'3×8min @ 5:05',c2:'20min @ 5:20',dom:'60min Z2',vol:36,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
-      {s:5,fase:'Carga',c1:'6×8min @ 4:55',c2:'35min @ 5:10',dom:'95min prog',vol:56,carga:'Alta',alerta:'Pico de volume do macro.'},
-      {s:6,fase:'Carga',c1:'2×20min @ 5:00',c2:'30min @ 5:10',dom:'100min prog',vol:58,carga:'M.Alta',alerta:'Sustentar volume alto.'},
-      {s:7,fase:'Carga',c1:'2×20min @ 4:55',c2:'40min @ 5:10',dom:'100min prog',vol:60,carga:'Alta',alerta:'Pico do bloco. Cuidar do sono.'},
-      {s:8,fase:'Deload',c1:'3×8min @ 5:05',c2:'20min @ 5:20',dom:'60min Z2',vol:36,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
-      {s:9,fase:'Carga',c1:'4×10min @ 4:50',c2:'30min @ 5:05',dom:'95min prog',vol:52,carga:'Alta',alerta:'Reduzir, manter qualidade.'},
-      {s:10,fase:'Carga',c1:'2×20min @ 4:55',c2:'40min @ 5:10',dom:'100min prog',vol:56,carga:'M.Alta',alerta:'Consolidar antes do teste.'},
-      {s:11,fase:'Pré-teste',c1:'2×20min @ 4:55',c2:'40min @ 5:10',dom:'100min prog',vol:56,carga:'Mod',alerta:'Consolidar antes do teste.'},
-      {s:12,fase:'TESTE',c1:'Ativação + strides',c2:'Z2 leve 25min',dom:'🏁 TESTE 3km',vol:24,carga:'Teste',alerta:'Meta ~21:45 no 5km. Calibra o M3.',teste:true},
+      {s:1,fase:'Carga',c1:'4×10min @ 4:52',c2:'30min @ 5:08',dom:'80min prog',vol:46,carga:'Alta',alerta:'Base aeróbica crescendo.'},
+      {s:2,fase:'Carga',c1:'5×10min @ 4:52',c2:'35min @ 5:05',dom:'85min prog',vol:50,carga:'M.Alta',alerta:'Volume é o estímulo — fácil de verdade.'},
+      {s:3,fase:'Carga',c1:'4×12min @ 4:47',c2:'30min @ 5:05',dom:'90min prog',vol:52,carga:'Alta',alerta:'Força: transição p/ 4–6 reps.'},
+      {s:4,fase:'Deload',c1:'3×8min @ 4:47',c2:'20min @ 5:08',dom:'60min Z2',vol:36,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
+      {s:5,fase:'Carga',c1:'6×8min @ 4:47',c2:'35min @ 5:02',dom:'95min prog',vol:56,carga:'Alta',alerta:'Pico de volume do macro.'},
+      {s:6,fase:'Carga',c1:'2×20min @ 4:52',c2:'30min @ 5:02',dom:'100min prog',vol:58,carga:'M.Alta',alerta:'Sustentar volume alto.'},
+      {s:7,fase:'Carga',c1:'2×20min @ 4:47',c2:'40min @ 5:02',dom:'100min prog',vol:60,carga:'Alta',alerta:'Pico do bloco. Cuidar do sono.'},
+      {s:8,fase:'Deload',c1:'3×8min @ 4:47',c2:'20min @ 5:08',dom:'60min Z2',vol:36,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
+      {s:9,fase:'Carga',c1:'4×10min @ 4:47',c2:'30min @ 4:47',dom:'95min prog',vol:52,carga:'Alta',alerta:'Reduzir, manter qualidade.'},
+      {s:10,fase:'Carga',c1:'2×20min @ 4:47',c2:'40min @ 5:02',dom:'100min prog',vol:56,carga:'M.Alta',alerta:'Consolidar antes do teste.'},
+      {s:11,fase:'Pré-teste',c1:'2×20min @ 4:47',c2:'40min @ 5:02',dom:'100min prog',vol:56,carga:'Mod',alerta:'Consolidar antes do teste.'},
+      {s:12,fase:'TESTE',c1:'Ativação + strides',c2:'Z2 leve 25min',dom:'🏁 TESTE 3km',vol:24,carga:'Teste',alerta:'Meta ~21:40 no 5km (3km ~12:55). Calibra o M3.',teste:true},
     ]},
-  { k:'M3', nome:'VO₂máx + Limiar', emoji:'🔵', cor:T.blue, periodo:'Dez 26–Fev 27', meta:'~21:00',
+  { k:'M3', nome:'VO₂máx + Limiar', emoji:'🔵', cor:T.blue, periodo:'Dez 26–Fev 27', meta:'~20:55',
     foco:'Elevar o VO₂máx (o teto) sobre a base de limiar e volume já pronta.',
     musc:'Potência — pliometria e levantamentos explosivos, pernas frescas.',
     c1lib:'VO2', c2lib:'LT2',
     sem:[
-      {s:1,fase:'Carga',c1:'VO₂ 4×4min @ 4:30',c2:'LT2 4×8min @ 4:50',dom:'90min prog',vol:50,carga:'Alta',alerta:'Reintroduz VO₂máx sobre base sólida.'},
-      {s:2,fase:'Carga',c1:'VO₂ 5×3min @ 4:25',c2:'LT2 5×8min @ 4:50',dom:'90min prog',vol:52,carga:'M.Alta',alerta:'Tiros controlados, repetíveis.'},
-      {s:3,fase:'Carga',c1:'VO₂ 4×4min @ 4:25',c2:'LT2 4×10min @ 4:50',dom:'95min prog',vol:54,carga:'Alta',alerta:'Teto subindo.'},
-      {s:4,fase:'Deload',c1:'VO₂ 3×3min @ 4:30',c2:'LT1 20min @ 5:10',dom:'60min Z2',vol:34,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
-      {s:5,fase:'Carga',c1:'VO₂ 5×4min @ 4:20',c2:'LT2 5×8min @ 4:45',dom:'95min prog',vol:54,carga:'Alta',alerta:'Pico de intensidade.'},
-      {s:6,fase:'Carga',c1:'VO₂ 4×4min @ 4:20',c2:'LT2 4×10min @ 4:45',dom:'90min prog',vol:52,carga:'M.Alta',alerta:'Manter qualidade dupla.'},
-      {s:7,fase:'Carga',c1:'VO₂ 30/30 ×16',c2:'LT2 3×12min @ 4:45',dom:'85min prog',vol:48,carga:'Alta',alerta:'Variar estímulo (30/30).'},
-      {s:8,fase:'Deload',c1:'VO₂ 3×3min @ 4:30',c2:'LT1 20min @ 5:10',dom:'60min Z2',vol:34,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
-      {s:9,fase:'Pré-teste',c1:'VO₂ 5×4min @ 4:20',c2:'LT2 2×15min @ 4:45',dom:'90min prog',vol:50,carga:'Mod',alerta:'Afiar antes do teste.'},
-      {s:10,fase:'TESTE',c1:'Ativação + strides',c2:'Z2 leve 25min',dom:'🏁 TESTE 3km',vol:24,carga:'Teste',alerta:'Meta ~21:00 no 5km. Calibra o M4.',teste:true},
+      {s:1,fase:'Carga',c1:'VO₂ 4×4min @ 4:28',c2:'LT2 4×8min @ 4:47',dom:'90min prog',vol:50,carga:'Alta',alerta:'Reintroduz VO₂máx sobre base sólida.'},
+      {s:2,fase:'Carga',c1:'VO₂ 5×3min @ 4:24',c2:'LT2 5×8min @ 4:47',dom:'90min prog',vol:52,carga:'M.Alta',alerta:'Tiros controlados, repetíveis.'},
+      {s:3,fase:'Carga',c1:'VO₂ 4×4min @ 4:24',c2:'LT2 4×10min @ 4:47',dom:'95min prog',vol:54,carga:'Alta',alerta:'Teto subindo.'},
+      {s:4,fase:'Deload',c1:'VO₂ 3×3min @ 4:28',c2:'LT1 20min @ 5:02',dom:'60min Z2',vol:34,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
+      {s:5,fase:'Carga',c1:'VO₂ 5×4min @ 4:21',c2:'LT2 5×8min @ 4:43',dom:'95min prog',vol:54,carga:'Alta',alerta:'Pico de intensidade.'},
+      {s:6,fase:'Carga',c1:'VO₂ 4×4min @ 4:21',c2:'LT2 4×10min @ 4:43',dom:'90min prog',vol:52,carga:'M.Alta',alerta:'Manter qualidade dupla.'},
+      {s:7,fase:'Carga',c1:'VO₂ 30/30 ×16',c2:'LT2 3×12min @ 4:43',dom:'85min prog',vol:48,carga:'Alta',alerta:'Variar estímulo (30/30).'},
+      {s:8,fase:'Deload',c1:'VO₂ 3×3min @ 4:28',c2:'LT1 20min @ 5:02',dom:'60min Z2',vol:34,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
+      {s:9,fase:'Pré-teste',c1:'VO₂ 5×4min @ 4:21',c2:'LT2 2×15min @ 4:43',dom:'90min prog',vol:50,carga:'Mod',alerta:'Afiar antes do teste.'},
+      {s:10,fase:'TESTE',c1:'Ativação + strides',c2:'Z2 leve 25min',dom:'🏁 TESTE 3km',vol:24,carga:'Teste',alerta:'Meta ~20:55 no 5km (3km ~12:30). Calibra o M4.',teste:true},
     ]},
-  { k:'M4', nome:'Específico 5km', emoji:'🟠', cor:T.rasp, periodo:'Fev–Abr 2027', meta:'~20:20',
+  { k:'M4', nome:'Específico 5km', emoji:'🟠', cor:T.rasp, periodo:'Fev–Abr 2027', meta:'~20:15',
     foco:'Tornar o pace de prova (3:59/km) automático e econômico.',
     musc:'Potência → manutenção. Volume baixo, só preservar.',
     c1lib:'PACE', c2lib:'LT2',
     sem:[
-      {s:1,fase:'Carga',c1:"5×1000m @ 4:00 (rec 2')",c2:'LT2 4×8min @ 4:45',dom:'85min prog',vol:50,carga:'Alta',alerta:'Pace de prova entra em cena.'},
-      {s:2,fase:'Carga',c1:'6×1000m @ 4:00',c2:'LT2 3×10min @ 4:45',dom:'85min prog',vol:52,carga:'M.Alta',alerta:'Acumular volume no pace-alvo.'},
-      {s:3,fase:'Carga',c1:'4×1200m @ 4:00',c2:'LT2 2×15min @ 4:45',dom:'90min prog',vol:52,carga:'Alta',alerta:'Reps mais longas no pace.'},
-      {s:4,fase:'Deload',c1:'4×800m @ 4:05',c2:'LT1 20min @ 5:05',dom:'55min Z2',vol:32,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
+      {s:1,fase:'Carga',c1:"5×1000m @ 4:00 (rec 2')",c2:'LT2 4×8min @ 4:43',dom:'85min prog',vol:50,carga:'Alta',alerta:'Pace de prova entra em cena.'},
+      {s:2,fase:'Carga',c1:'6×1000m @ 4:00',c2:'LT2 3×10min @ 4:43',dom:'85min prog',vol:52,carga:'M.Alta',alerta:'Acumular volume no pace-alvo.'},
+      {s:3,fase:'Carga',c1:'4×1200m @ 4:00',c2:'LT2 2×15min @ 4:43',dom:'90min prog',vol:52,carga:'Alta',alerta:'Reps mais longas no pace.'},
+      {s:4,fase:'Deload',c1:'4×800m @ 4:05',c2:'LT1 20min @ 4:47',dom:'55min Z2',vol:32,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
       {s:5,fase:'Carga',c1:'3×1600m @ 4:00',c2:'LT2 3×12min @ 4:40',dom:'85min prog',vol:50,carga:'Alta',alerta:'Blocos longos no pace.'},
       {s:6,fase:'Carga',c1:'6×1000m @ 3:58',c2:'LT2 2×15min @ 4:40',dom:'80min prog',vol:48,carga:'M.Alta',alerta:'Tolerância ao pace de prova.'},
-      {s:7,fase:'Carga',c1:'2×2000m @ 4:00',c2:'LT1 30min @ 5:00',dom:'80min prog',vol:46,carga:'Alta',alerta:'Simulação de sustentação.'},
-      {s:8,fase:'Deload',c1:'4×800m @ 4:05',c2:'LT1 20min @ 5:05',dom:'55min Z2',vol:32,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
+      {s:7,fase:'Carga',c1:'2×2000m @ 4:00',c2:'LT1 30min @ 4:52',dom:'80min prog',vol:46,carga:'Alta',alerta:'Simulação de sustentação.'},
+      {s:8,fase:'Deload',c1:'4×800m @ 4:05',c2:'LT1 20min @ 4:47',dom:'55min Z2',vol:32,carga:'Leve',alerta:'DELOAD. Supercompensação.'},
       {s:9,fase:'Pré-teste',c1:'8×600m @ 3:55',c2:'LT2 3×10min @ 4:40',dom:'75min prog',vol:46,carga:'Mod',alerta:'Afiar a economia.'},
-      {s:10,fase:'TESTE',c1:'Ativação + strides',c2:'Z2 leve 20min',dom:'🏁 TESTE 3km',vol:22,carga:'Teste',alerta:'Meta ~20:20 no 5km. Quase lá.',teste:true},
+      {s:10,fase:'TESTE',c1:'Ativação + strides',c2:'Z2 leve 20min',dom:'🏁 TESTE 3km',vol:22,carga:'Teste',alerta:'Meta ~20:15 no 5km (3km ~12:05). Quase lá.',teste:true},
     ]},
   { k:'M5', nome:'Pico + Afiação', emoji:'🔴', cor:T.red, periodo:'Abr–Jun 2027', meta:'Sub-20',
     foco:'Converter a base em velocidade de prova e chegar fresco. O frescor revela a forma.',
@@ -238,9 +238,9 @@ const MACRO = [
     sem:[
       {s:1,fase:'Carga',c1:'6×400m @ 3:50',c2:'LT2 3×8min @ 4:40',dom:'75min prog',vol:44,carga:'Alta',alerta:'Velocidade pura e potência.'},
       {s:2,fase:'Carga',c1:'8×400m @ 3:50',c2:'LT2 2×12min @ 4:40',dom:'75min prog',vol:45,carga:'M.Alta',alerta:'Afiar o sistema neuromuscular.'},
-      {s:3,fase:'Carga',c1:'5×600m @ 3:52',c2:'LT1 25min @ 5:00',dom:'70min Z2',vol:42,carga:'Alta',alerta:'Reduzindo volume, mantendo ponta.'},
+      {s:3,fase:'Carga',c1:'5×600m @ 3:52',c2:'LT1 25min @ 4:52',dom:'70min Z2',vol:42,carga:'Alta',alerta:'Reduzindo volume, mantendo ponta.'},
       {s:4,fase:'Carga',c1:'10×300m @ 3:48',c2:'LT2 3×8min @ 4:38',dom:'70min prog',vol:42,carga:'M.Alta',alerta:'Tiros curtos e rápidos.'},
-      {s:5,fase:'Taper',c1:'4×800m @ 3:55',c2:'LT1 20min @ 5:00',dom:'60min Z2',vol:38,carga:'Alta',alerta:'Taper começa — volume cai.'},
+      {s:5,fase:'Taper',c1:'4×800m @ 3:55',c2:'LT1 20min @ 4:52',dom:'60min Z2',vol:38,carga:'Alta',alerta:'Taper começa — volume cai.'},
       {s:6,fase:'Taper',c1:'3×1000m @ 3:55',c2:'LT2 2×10min @ 4:38',dom:'55min Z2',vol:34,carga:'M.Alta',alerta:'Taper. Pernas frescas.'},
       {s:7,fase:'Taper',c1:'3×1000m @ 3:55',c2:'LT2 2×10min @ 4:38',dom:'55min Z2',vol:34,carga:'Mod',alerta:'Taper final. Nada pesado.'},
       {s:8,fase:'PROVA',c1:'Ativação 12min + 4×100m',c2:'Descanso ou Z2 15min',dom:'🏆 PROVA 5km',vol:20,carga:'Teste',alerta:'🏆 META Sub-20:00 / estímulo Sub-19:00',teste:true},
@@ -250,35 +250,35 @@ const MACRO = [
 /* Biblioteca — execução de cada sessão */
 const LIB = {
   LT2:{ nome:'LT2 · Limiar em blocos', tag:'A maior alavanca pro teu 5km agora.', cor:T.amber,
-    fc:[167,173], pace:'4:50–5:05', min:45,
+    fc:[167,173], pace:'4:50–4:55', min:45,
     func:'Elevar o limiar de lactato: empurrar pra cima o ritmo que você sustenta sem acidificar.',
     estrut:'3–5 × 8–12min com 90s de trote entre. Aquec. 12–15min + desaq. 8–10min.',
     exec:['Comece pelo limite LENTO da faixa.','A FC deve ESTABILIZAR ao longo dos blocos, não escalar.','Se subir +3bpm de bloco a bloco ou passar de 173, segura o ritmo.','Termine com a sensação de que dava mais um bloco.'],
     erros:'Começar rápido e virar VO₂máx; deixar a FC escalar; cortar o aquecimento.',
     dica:'Progrida o TEMPO no limiar antes do pace. O pace sobe sozinho conforme adapta.' },
   LT1:{ nome:'LT1 · Limiar contínuo', tag:'O dia que mais escorrega pra zona cinza.', cor:T.cyan,
-    fc:[155,162], pace:'5:20–5:30', min:40,
+    fc:[155,162], pace:'5:00–5:15', min:40,
     func:'Desenvolver o limiar aeróbico sem o custo de recuperação de uma sessão de LT2.',
     estrut:'20–40min contínuo, sem intervalos. Aquec. e desaq. inclusos.',
     exec:['Ritmo confortavelmente forte e PLANO do início ao fim.','FC travada em 162 — não deixe subir.','É pra ser entediante de tão controlado; esse é o objetivo.'],
     erros:'Deixar virar LT2; FC passar de 162 (cai na zona cinza); acelerar no terço final.',
     dica:'Teste da fala: se não consegue dizer uma frase inteira sem ofegar, está rápido demais.' },
   Z2:{ nome:'Z2 fácil + strides', tag:'80% do volume mora aqui.', cor:T.mint,
-    fc:[140,152], pace:'5:45–6:15', min:45,
+    fc:[140,152], pace:'5:40–6:20', min:45,
     func:'Base aeróbica que permite recuperar pros dias duros. Strides preservam velocidade.',
     estrut:'35–55min fácil + 6–8 × 12s strides em subida leve (4–6%), volta caminhando.',
     exec:['Corra REALMENTE fácil: respiração nasal, conversa fluida.','Strides = acelerações suaves até ~95%, cadência alta — não é sprint.','Recupere por completo entre cada stride.'],
     erros:'Correr o fácil rápido demais (o erro mais custoso); sprintar os strides.',
     dica:'Na dúvida entre fácil e mais fácil, escolha mais fácil.' },
   LONGO:{ nome:'Longo progressivo', tag:'Onde o volume cresce e o teto sobe.', cor:T.violet,
-    fc:[140,162], pace:'5:30→5:15', min:60,
+    fc:[140,162], pace:'5:25→5:05', min:60,
     func:'Construir resistência aeróbica e ensinar o corpo a correr cansado.',
     estrut:'60–105min, com os últimos 15–20min mais firmes (chegando ao LT1).',
     exec:['Comece BEM fácil — mais devagar do que o ego quer.','Mantenha fácil por dois terços.','Só aperte no terço final.','Termine forte mas no controle, nunca em colapso.'],
     erros:'Começar rápido; terminar exausto; fazer no dia seguinte a treino pesado.',
     dica:'O longo não precisa ser rápido pra funcionar. Consistência vence heroísmo.' },
   VO2:{ nome:'VO₂máx · 4×4', tag:'Eleva o teto. Entra só no M3.', cor:T.red,
-    fc:[178,188], pace:'4:20–4:35', min:50,
+    fc:[178,188], pace:'4:20–4:30', min:50,
     func:'Elevar o VO₂máx com esforços sustentados que te levam fundo na zona máxima.',
     estrut:'4–6 × 3–4min a ~90–95% FCmáx, 2–3min de trote entre. Aquec. 15min.',
     exec:['Largue CONTROLADO — a FC sobe ao longo do tiro.','Recuperação ATIVA (trote leve, não parado).','A última série tão forte quanto a primeira.'],
@@ -359,55 +359,52 @@ const FORCA_SEMANA = {
         { ex:'Alongamento estático (superiores)', s:'—', r:'8 min', c:'—', d:'—', o:'Foco peitoral e latíssimo' },
       ]},
     ]},
-  3:{ /* Quarta */ nome:'Calistenia 1 · Habilidades (Skills/Core) + Pliometria', tag:'Fundação de estáticas — handstand e back lever, pré-requisitos do front lever',
-    cor:T.cyan, min:60,
+  3:{ /* Quarta */ nome:'Calistenia 1 · Handstand + Planche', tag:'Dia de EMPURRAR / vertical — as duas skills que carregam o punho. Detalhe da etapa atual na aba Skills.',
+    cor:T.cyan, min:55,
     blocos:[
-      { t:'🖐️ Preparação de punho', itens:[
-        { ex:'Círculos de punho + apoio em extensão/flexão', s:'—', r:'5 min', c:'—', d:'—', o:'Handstand sem punho preparado é a lesão mais comum e mais evitável' },
-        { ex:'Prancha nos punhos', s:'3x', r:'20 seg', c:'PC', d:'30 seg', o:'Fortalece antes de carregar peso no punho' },
+      { t:'🖐️ Preparação de punho (inegociável)', itens:[
+        { ex:'Círculos de punho + apoio em extensão/flexão', s:'—', r:'5 min', c:'—', d:'—', o:'Punho despreparado é a lesão nº1 de quem treina handstand e planche — e a mais fácil de evitar' },
+        { ex:'Prancha nos punhos', s:'3x', r:'20–30 seg', c:'PC', d:'30 seg', o:'Constrói tolerância antes de carregar peso de verdade' },
       ]},
-      { t:'🤸 Handstand — progressão', itens:[
-        { ex:'Handstand na parede (chest-to-wall)', s:'3x', r:'até 60 seg', c:'PC', d:'90 seg', o:'Nível 1 — ponto de entrada provável hoje' },
-        { ex:'Handstand na parede (back-to-wall)', s:'3x', r:'até 45 seg', c:'PC', d:'90 seg', o:'Nível 2 — aprende a sentir o equilíbrio' },
-        { ex:'Kick-up assistido + solto 1-3s', s:'3x', r:'10 tentativas', c:'PC', d:'2 min', o:'Nível 3 — só depois de dominar nível 1' },
+      { t:'🤸 Handstand — etapa atual da trilha', itens:[
+        { ex:'Pike hold / Chest-to-wall / Kick-up livre', s:'4x', r:'ver Skills', c:'PC', d:'90 seg', o:'Faça a etapa que está ativa na aba Skills → Handstand. Chest-to-wall (barriga pra parede) é a versão correta: ensina linha reta, não banana' },
+        { ex:'Tentativas de equilíbrio livre', s:'—', r:'8–10 tentativas curtas', c:'PC', d:'45 seg', o:'Handstand melhora com frequência alta e volume baixo — muitas tentativas curtas batem poucas longas' },
       ]},
-      { t:'🤸 Back Lever — porta de entrada pro Front Lever', itens:[
-        { ex:'Tuck back lever', s:'3x', r:'15–20 seg', c:'PC', d:'2 min', o:'Nível 1 — comece aqui' },
-        { ex:'Advanced tuck back lever', s:'3x', r:'12–15 seg', c:'PC', d:'2 min', o:'Nível 2 — quadril estendido, joelhos dobrados' },
-        { ex:'Straddle back lever', s:'3x', r:'10 seg', c:'PC', d:'2 min', o:'Nível 3 — pernas abertas' },
+      { t:'🤸 Planche — etapa atual da trilha', itens:[
+        { ex:'Prancha escapular / Lean / Tuck', s:'4x', r:'ver Skills', c:'PC', d:'2 min', o:'Faça a etapa ativa em Skills → Planche. Escápulas SEMPRE protraídas, quadril alto' },
+        { ex:'Hollow body hold', s:'3x', r:'30–45 seg', c:'PC', d:'45 seg', o:'Core rígido é pré-requisito compartilhado de planche e front lever' },
       ]},
-      { t:'🧘 Core — L-sit → V-sit', itens:[
-        { ex:'L-sit (uma perna → completo)', s:'3x', r:'máx hold', c:'Paralelas/solo', d:'90 seg', o:'Evolução direta do que você já treina' },
+      { t:'🏋️ Fundamentos de empurrar', itens:[
+        { ex:'Pike push-up', s:'3x', r:'8–15', c:'PC — eleve os pés pra dificultar', d:'90 seg', o:'Constrói o ombro que sustenta handstand e prepara pra HSPU' },
+        { ex:'Flexões (progressão)', s:'3x', r:'até quase a falha', c:'PC — pés elevados se fácil', d:'60 seg', o:'Suba a dificuldade antes de subir o volume' },
+        { ex:'Paralela (dips estrito)', s:'3x', r:'até 1–2 antes da falha', c:'PC', d:'90 seg', o:'Alimenta também a trilha do muscle-up' },
       ]},
-      { t:'🏋️ Fundamentos: Barra Fixa + Paralela + Flexões', itens:[
-        { ex:'Barra fixa (pull-up estrito)', s:'4x', r:'até 1–2 antes da falha', c:'PC', d:'2 min', o:'Dead hang completo, sem kipping — base da trilha Muscle-Up' },
-        { ex:'Paralela (dips estrito)', s:'3x', r:'até 1–2 antes da falha', c:'PC', d:'90 seg', o:'Cotovelo a 90°, tronco levemente à frente' },
-        { ex:'Flexões (progressão)', s:'3x', r:'até quase a falha', c:'PC — eleve os pés se estiver fácil', d:'60 seg', o:'Sobe a dificuldade (inclinação/pés elevados) antes de subir volume' },
-      ]},
-      { t:'⚡ Pliometria (upper, curta)', itens:[
-        { ex:'Plyo push-up (mãos saem do chão)', s:'3x', r:'5', c:'PC', d:'90 seg', o:'Mantém potência de empurrar — não é o foco do dia' },
+      { t:'🧘 Core', itens:[
+        { ex:'L-sit (progressão)', s:'3x', r:'máx hold', c:'Paralelas/solo', d:'90 seg', o:'Tucked → uma perna → completo' },
       ]},
     ]},
-  5:{ /* Sexta */ nome:'Calistenia 2 · Habilidades Avançadas + Core na Barra', tag:'Front lever, muscle-up técnico e core — o dia mais avançado da semana',
-    cor:T.red, min:50,
+  5:{ /* Sexta */ nome:'Calistenia 2 · Front Lever + Muscle-Up', tag:'Dia de PUXAR / horizontal — dorsal e escápula. Detalhe da etapa atual na aba Skills.',
+    cor:T.violet, min:55,
     blocos:[
-      { t:'🖐️ Preparação de punho e ombro', itens:[
-        { ex:'Rotador manguito + círculos de punho', s:'—', r:'5 min', c:'Elástico leve', d:'—', o:'Front lever e muscle-up exigem ombro saudável' },
+      { t:'🖐️ Preparação de ombro e punho', itens:[
+        { ex:'Rotador manguito + círculos de punho', s:'—', r:'5 min', c:'Elástico leve', d:'—', o:'False grip e front lever exigem ombro e punho saudáveis' },
+        { ex:'Dead hang', s:'2x', r:'30 seg', c:'PC', d:'45 seg', o:'Solta o ombro e prepara a pegada' },
       ]},
-      { t:'🤸 Front Lever — progressão principal', itens:[
-        { ex:'Tuck front lever', s:'3x', r:'15–20 seg', c:'PC', d:'2 min', o:'Só entra depois do tuck back lever estar confortável' },
-        { ex:'Advanced tuck front lever', s:'3x', r:'10–12 seg', c:'PC', d:'2 min', o:'Progrida só quando o tuck estiver sólido' },
-        { ex:'Straddle front lever', s:'3x', r:'8–10 seg', c:'PC', d:'2 min', o:'Exige mais dos dorsais que o back lever' },
+      { t:'🤸 Front Lever — etapa atual da trilha', itens:[
+        { ex:'Scapular pull-up / Tuck / Advanced tuck', s:'4x', r:'ver Skills', c:'PC', d:'2 min', o:'Faça a etapa ativa em Skills → Front Lever. Braço RETO sempre — se dobrou, a série acabou' },
+        { ex:'Negativa de front lever', s:'3x', r:'3–5 (5s cada)', c:'PC', d:'2 min', o:'Abre a alavanca devagar, controlando a descida — ensina a posição melhor que hold puro' },
       ]},
-      { t:'💪 Muscle-up — refinamento técnico', itens:[
-        { ex:'False grip hold', s:'3x', r:'20–30 seg', c:'PC', d:'60 seg', o:'É o que "engancha" a transição' },
-        { ex:'Negativa de transição (5s controlado)', s:'3x', r:'3', c:'PC', d:'2 min', o:'Desce do topo simulando a transição ao contrário' },
-        { ex:'Muscle-up completo (qualidade)', s:'3x', r:'tentativas', c:'PC/Assistido', d:'3 min', o:'Reduza o kipping gradualmente até a versão estrita' },
-        { ex:'Progressão detalhada na aba Skills', s:'—', r:'—', c:'—', d:'—', o:'Trilha Muscle-Up completa (barra → paralela → false grip → transição → primeira rep → volume) com registro por etapa em Skills → Muscle-Up.' },
+      { t:'💪 Muscle-Up — etapa atual da trilha', itens:[
+        { ex:'False grip hold / Negativas / Transição', s:'4x', r:'ver Skills', c:'PC ou banda', d:'2 min', o:'Faça a etapa ativa em Skills → Muscle-Up. O cotovelo GIRA por baixo, não empurra pra cima' },
+        { ex:'Pull-up explosivo', s:'4x', r:'4–6', c:'PC', d:'2 min', o:'Puxe até a barra chegar no peito/abdômen — quanto mais alto, menos transição você precisa inventar' },
+      ]},
+      { t:'🏋️ Fundamentos de puxar', itens:[
+        { ex:'Barra fixa (pull-up estrito)', s:'4x', r:'até 1–2 antes da falha', c:'PC', d:'2 min', o:'Dead hang completo, sem kipping — a base de tudo nesse dia' },
+        { ex:'Remada horizontal (australian row)', s:'3x', r:'10–15', c:'PC — pés elevados pra dificultar', d:'90 seg', o:'Puxada horizontal complementa a vertical e equilibra o ombro' },
       ]},
       { t:'🧘 Core na barra', itens:[
-        { ex:'Hanging leg raise → toes-to-bar', s:'3x', r:'8–10', c:'PC', d:'90 seg', o:'Sustenta o core pra tudo acima funcionar' },
-        { ex:'Windshield wipers', s:'3x', r:'6–8', c:'PC', d:'90 seg', o:'Rotação lateral pendurado — avançado' },
+        { ex:'Hanging leg raise → toes-to-bar', s:'3x', r:'8–12', c:'PC', d:'90 seg', o:'Pernas retas, sem balanço — sustenta o front lever' },
+        { ex:'Windshield wipers', s:'3x', r:'6–8', c:'PC', d:'90 seg', o:'Rotação lateral pendurado — só quando toes-to-bar estiver fácil' },
       ]},
     ]},
   6:{ /* Sábado */ nome:'Musculação 3 · Superiores Completo', tag:'Fecha o ciclo de força da semana · agora combinado com o longão (upper + corrida, baixo conflito)',
@@ -742,8 +739,12 @@ const SEED_DIARIO = {
   "2026-07-17":{cargaCorrida:174},
   "2026-07-20":{cargaCorrida:164},
   "2026-07-21":{cargaCorrida:191},
+  "2026-09-09":{cargaCorrida:118},
 };
 const SEED_TREINOS = [
+  { id:"20099716578", data:"2026-09-09", hora:5, distKm:3.01, duracaoMin:13.3, elevM:3.9,
+    fcMedia:185, fcMax:194, paceSeg:265, altitudeM:14, gradeMedio:0.5, cadencia:169, re:51, kcal:210,
+    zonas:{Z1:1.7,Z2:1.7,LT1:1.7,CINZA:1.7,LT2:5.0,VO2:88.3}, teste:true },
   { id:"19447409010", data:"2026-07-21", hora:16, distKm:5.39, duracaoMin:29.4, elevM:52.1,
     fcMedia:165, fcMax:175, paceSeg:327, altitudeM:600, gradeMedio:1.96, cadencia:166, re:58,
     zonas:{Z1:1.7,Z2:11.9,LT1:11.9,CINZA:15.3,LT2:57.6,VO2:1.7} },
@@ -1010,80 +1011,240 @@ function diagnosticoCoach({ ultimo, monoStrain, debitoSono, prontSerie, serie, t
    Cada etapa dura N semanas (estimativa — varia por indivíduo, sobretudo nas fases de planche).
    Ancorada em ANCORA_SKILLS: quando a etapa muda, é o atleta que avança manualmente registrando
    o marco — a trilha só *sugere* a janela, não força o avanço automático. */
-const ANCORA_SKILLS = '2026-08-04';
+/* ═══════════════════════ TRILHAS DE CALISTENIA — 4 SKILLS ═══════════════════════
+   Reiniciadas do zero em 11/09/2026. Quatro objetivos finais: Planche, Muscle-Up,
+   Front Lever e Handstand. A lógica de progressão é a mesma em todas: primeiro
+   construir o TECIDO que sustenta a posição (punho, escápula, core, tendão), depois
+   a FORÇA na alavanca curta, e só então abrir a alavanca gradualmente.
+
+   Regra de ouro que vale pras quatro: só avança de etapa quando segurar a meta com
+   forma limpa em 2–3 sessões seguidas. Pular etapa em calistenia estática não acelera
+   nada — só troca progresso por tendinite. As janelas de semanas são estimativas
+   generosas; o marcador real é a meta de cada etapa, não o calendário.
+
+   Distribuição semanal (casa com o plano de força existente):
+   · QUA (Calistenia 1) → Handstand + Planche  (empurrar / vertical)
+   · SEX (Calistenia 2) → Front Lever + Muscle-Up  (puxar / horizontal)
+   Assim cada par treina padrões opostos e nenhum grupo leva carga dois dias seguidos. */
+const ANCORA_SKILLS = '2026-09-11';
+
+/* ── 1. PLANCHE — empurrar horizontal. A mais longa das quatro. ── */
 const SKILLS_PLANCHE = [
-  { id:'crow', num:8, nome:'Crow Pose', nivel:'Basic', semanas:6, metric:'hold_s', metricLabel:'Hold (segundos)', target:30,
-    guia:['Apoie as mãos no chão, dedos bem espalhados','Joelhos apoiados nos cotovelos (ou logo acima)','Desloque o peso do corpo pra frente, até as mãos','Olhar fixo no chão à frente das mãos — não pros pés','Segure firme e estável; não é sobre balançar'],
+  { id:'pl-pulso', nome:'Base: Punho, Escápula & Core', nivel:'Fundação', semanas:4, metric:'hold_s', metricLabel:'Prancha escapular (segundos)', target:45,
+    guia:['Preparação de punho todo treino: círculos, extensão/flexão apoiada, 5min — inegociável antes de qualquer carga',
+          'Prancha escapular: em posição de flexão, protraia (empurre o chão afastando as escápulas) e segure',
+          'Hollow body hold: lombar colada no chão, é o core que sustenta toda planche depois',
+          'Nada de tentar planche ainda — essa fase é só construir o tecido que aguenta a próxima'],
     fases:[
-      { semana:'1–2', hold:'5–10s', rpe:'5–6', series:'4–5' },
-      { semana:'3–4', hold:'15–20s', rpe:'6–7', series:'4–5' },
-      { semana:'5–6', hold:'25–30s', rpe:'6–7', series:'3–4', milestone:'Pronto pra Dips + Archer (#9)' },
+      { semana:'1', hold:'Prancha escapular 15–20s · hollow 20s', rpe:'5', series:'3x' },
+      { semana:'2', hold:'25–30s · hollow 30s', rpe:'5–6', series:'3–4x' },
+      { semana:'3', hold:'35–40s · hollow 40s', rpe:'6', series:'4x' },
+      { semana:'4', hold:'45s · hollow 45s', rpe:'6', series:'4x', milestone:'Punho e escápula prontos pro Lean' },
     ] },
-  { id:'dips', num:9, nome:'Dips + Archer Push-Ups', nivel:'Intermediate', semanas:8, metric:'reps', metricLabel:'Repetições (melhor série)', target:12,
-    guia:['Dips nas paralelas: cotovelo a 90°, tronco levemente inclinado à frente','Archer push-up: um braço estende lateral enquanto o outro flexiona todo o peso','Progrida amplitude antes de progredir carga','Controle a descida (2–3s) em ambos os movimentos'] },
-  { id:'lean', nome:'Planche Lean', nivel:'Advanced', semanas:6, metric:'angulo', metricLabel:'Ângulo do tronco (°, do solo)', target:10, metaTxt:'25° → 10°',
-    guia:['Apoio de mãos, ombros à frente dos punhos, corpo em prancha reta','Quanto menor o ângulo do tronco com o solo, mais avançado','Mantenha escápulas protraídas (afastadas) o tempo todo','Trabalhe tempo sob tensão, não só o ângulo máximo momentâneo'] },
-  { id:'tuck', nome:'Planche Tuck', nivel:'Advanced', semanas:8, metric:'hold_s', metricLabel:'Hold (segundos)', target:20,
-    guia:['Joelhos ao peito, quadril elevado, ombros à frente dos punhos','Corpo compacto — é a base de todas as planches seguintes','Vazamento de quadril (dropar) é o erro mais comum: mantenha o core rígido'] },
-  { id:'straddle', nome:'Planche Straddle', nivel:'Elite', semanas:10, metric:'angulo', metricLabel:'Abertura de pernas (°)', target:160, metaTxt:'90° → 160°',
-    guia:['Pernas abertas reduzem o torque — mais fácil que straddle fechado, mas ainda exige muito core','Estenda os joelhos completamente','Progrida a abertura aos poucos; não force além do que o quadril permite com boa forma'] },
-  { id:'full', nome:'Planche Full', nivel:'Elite', semanas:null, metric:'hold_s', metricLabel:'Hold (segundos)', target:10, final:true,
-    guia:['Corpo horizontal, pernas unidas, zero apoio no chão além das mãos','O objetivo aqui não é mais progressão — é consolidar e depois buscar volume/duração'] },
+  { id:'pl-lean', nome:'Planche Lean', nivel:'Basic', semanas:6, metric:'hold_s', metricLabel:'Hold no lean máximo (segundos)', target:30,
+    guia:['Posição de flexão, ombros bem à frente dos punhos, corpo reto',
+          'Quanto mais à frente o ombro, mais peso vai pro punho — avance centímetro por centímetro',
+          'Escápulas SEMPRE protraídas (afastadas) e core rígido',
+          'Se o punho reclamar, recua a inclinação. Dor de punho aqui vira lesão crônica lá na frente'],
+    fases:[
+      { semana:'1–2', hold:'Lean leve, 10–15s', rpe:'6', series:'4x' },
+      { semana:'3–4', hold:'Lean médio, 20s', rpe:'6–7', series:'4x' },
+      { semana:'5–6', hold:'Lean agressivo, 30s', rpe:'7', series:'4x', milestone:'Ombro à frente do punho por 30s — base do tuck' },
+    ] },
+  { id:'pl-tuck', nome:'Tuck Planche', nivel:'Intermediate', semanas:8, metric:'hold_s', metricLabel:'Hold (segundos)', target:20,
+    guia:['Joelhos ao peito, quadril ALTO, ombros à frente — corpo compacto e flutuando',
+          'O erro nº1 é deixar o quadril cair: se caiu, acabou a série',
+          'Progrida só quando conseguir 20s limpos — essa é a base de tudo que vem depois'],
+    fases:[
+      { semana:'1–3', hold:'5–8s', rpe:'7', series:'5x' },
+      { semana:'4–6', hold:'10–15s', rpe:'7–8', series:'5x' },
+      { semana:'7–8', hold:'20s', rpe:'8', series:'4–5x', milestone:'Tuck sólido — pode abrir a alavanca' },
+    ] },
+  { id:'pl-adv', nome:'Advanced Tuck', nivel:'Advanced', semanas:10, metric:'hold_s', metricLabel:'Hold (segundos)', target:15,
+    guia:['Quadril estende até formar linha com o tronco, joelhos ainda dobrados a 90°',
+          'Salto grande de dificuldade em relação ao tuck — a alavanca aumenta muito',
+          'Trabalhe também o negativo: sai do tuck e abre devagar, controlando'],
+    fases:[
+      { semana:'1–4', hold:'5s', rpe:'8', series:'5x' },
+      { semana:'5–7', hold:'8–10s', rpe:'8', series:'5x' },
+      { semana:'8–10', hold:'15s', rpe:'8–9', series:'4–5x', milestone:'Pronto pro straddle' },
+    ] },
+  { id:'pl-straddle', nome:'Straddle Planche', nivel:'Elite', semanas:14, metric:'hold_s', metricLabel:'Hold (segundos)', target:10,
+    guia:['Pernas estendidas e bem abertas — a abertura reduz o torque, por isso vem antes da full',
+          'Quanto mais abre a perna, mais fácil; feche gradualmente ao longo das semanas',
+          'Aqui a mobilidade de quadril passa a limitar tanto quanto a força'],
+    fases:[
+      { semana:'1–5', hold:'3–5s, abertura máxima', rpe:'8–9', series:'5x' },
+      { semana:'6–10', hold:'6–8s', rpe:'9', series:'5x' },
+      { semana:'11–14', hold:'10s', rpe:'9', series:'4–5x', milestone:'Straddle consolidado' },
+    ] },
+  { id:'pl-full', nome:'Full Planche', nivel:'Elite', semanas:null, metric:'hold_s', metricLabel:'Hold (segundos)', target:5, final:true,
+    guia:['Corpo horizontal, pernas unidas e estendidas, só as mãos no chão',
+          'Chegou aqui: agora é consolidar tempo e qualidade, não buscar nova progressão',
+          'Realista: a trilha inteira leva 1,5–3 anos pra maioria. Não é lentidão, é a natureza da skill'] },
 ];
 
-/* Trilha paralela: Muscle-Up. Roda em conjunto com a de Planche (dias diferentes de calistenia
-   trabalham grupos musculares diferentes) — puxada + empurrada de base até a transição completa. */
+/* ── 2. MUSCLE-UP — puxar explosivo + transição. A mais rápida das quatro. ── */
 const SKILLS_MUSCLEUP = [
-  { id:'mu-pullup', nome:'Barra Fixa · Pull-up Estrito', nivel:'Basic', semanas:4, metric:'reps', metricLabel:'Reps estritas (melhor série)', target:15,
-    guia:['Dead hang completo no início de cada rep — sem balanço nem kipping','Puxe até o queixo passar a barra','Descida controlada (2–3s), sem soltar a tensão no fim','Escápulas deprimidas e retraídas antes de puxar'],
+  { id:'mu-base', nome:'Base: Barra & Paralela', nivel:'Fundação', semanas:6, metric:'reps', metricLabel:'Pull-ups estritos (melhor série)', target:12,
+    guia:['Pull-up estrito: dead hang completo, queixo passa a barra, descida controlada 2–3s',
+          'Dips na paralela: cotovelo a 90°, tronco levemente à frente',
+          'Meta dupla desta fase: 12 pull-ups E 15 dips estritos',
+          'Sem esses números, muscle-up vira tentativa com kipping — e kipping não constrói força'],
     fases:[
-      { semana:'1', hold:'8–10 reps', rpe:'6', series:'4x' },
-      { semana:'2', hold:'10–12 reps', rpe:'6–7', series:'4x' },
-      { semana:'3', hold:'12–14 reps', rpe:'7', series:'4x' },
-      { semana:'4', hold:'15+ reps', rpe:'7–8', series:'4x', milestone:'Pronto pra somar volume de Dips (#mu-dips)' },
+      { semana:'1–2', hold:'6–8 pull-ups · 8–10 dips', rpe:'6–7', series:'4x' },
+      { semana:'3–4', hold:'8–10 pull-ups · 10–12 dips', rpe:'7', series:'4x' },
+      { semana:'5–6', hold:'12 pull-ups · 15 dips', rpe:'7–8', series:'4x', milestone:'Força de base pronta' },
     ] },
-  { id:'mu-dips', nome:'Paralela · Dips Estrito', nivel:'Basic', semanas:4, metric:'reps', metricLabel:'Reps estritas (melhor série)', target:15,
-    guia:['Cotovelo desce até 90° ou pouco abaixo','Tronco levemente inclinado à frente — protege o ombro','Trava completa no topo, sem hiperestender o cotovelo','Descida controlada, sem quicar embaixo'],
+  { id:'mu-explosivo', nome:'Pull-up Explosivo + False Grip', nivel:'Intermediate', semanas:5, metric:'hold_s', metricLabel:'False grip hold (segundos)', target:25,
+    guia:['False grip: pulso POR CIMA da barra, peso na base da palma — desconfortável no começo, é normal',
+          'Comece só pendurado no false grip, sem puxar, pra o punho adaptar',
+          'Pull-up explosivo: puxe com força suficiente pra barra chegar no peito/abdômen',
+          'Quanto mais alto você puxa, menos transição você precisa inventar depois'],
     fases:[
-      { semana:'1', hold:'8–10 reps', rpe:'6', series:'4x' },
-      { semana:'2', hold:'10–12 reps', rpe:'6–7', series:'4x' },
-      { semana:'3', hold:'12–14 reps', rpe:'7', series:'4x' },
-      { semana:'4', hold:'15+ reps', rpe:'7–8', series:'4x', milestone:'Pronto pra False Grip + Negativas' },
+      { semana:'1–2', hold:'False grip 10s · explosivo até o peito', rpe:'6–7', series:'4x' },
+      { semana:'3–4', hold:'False grip 18s · explosivo abaixo do esterno', rpe:'7', series:'4x' },
+      { semana:'5', hold:'False grip 25s · explosivo no abdômen', rpe:'7–8', series:'4x', milestone:'Altura de puxada suficiente pra transição' },
     ] },
-  { id:'mu-falsegrip', nome:'False Grip + Negativas', nivel:'Intermediate', semanas:4, metric:'hold_s', metricLabel:'Hold do false grip (segundos)', target:20,
-    guia:['Pulso por cima da barra/argola, pressão na base da palma, não nos dedos','Comece pendurado sem peso, só sustentando a pegada','Negativa: desça de cima da barra em transição controlada por 5s','Se o pulso doer, pare — aqui é técnica, não força bruta'],
+  { id:'mu-negativa', nome:'Negativas de Transição', nivel:'Intermediate', semanas:5, metric:'reps', metricLabel:'Negativas controladas (5s cada)', target:5,
+    guia:['Sobe de qualquer jeito (salto/banda) até o apoio no topo da barra',
+          'Desce DEVAGAR (5s), passando pela transição ao contrário',
+          'É aqui que o cotovelo aprende o caminho — a negativa ensina o movimento melhor que qualquer tentativa',
+          'Prefira 3 negativas perfeitas a 8 desleixadas'],
     fases:[
-      { semana:'1', hold:'5–8s (parado, sem peso)', rpe:'5', series:'4x' },
-      { semana:'2', hold:'10–12s + negativa 1x', rpe:'6', series:'4x' },
-      { semana:'3', hold:'15s + negativa 2–3x', rpe:'6–7', series:'4x' },
-      { semana:'4', hold:'20s + negativa 3x limpa', rpe:'7', series:'4x', milestone:'Punho e pegada prontos pra transição assistida' },
+      { semana:'1–2', hold:'2–3 negativas de 3s', rpe:'7', series:'4x' },
+      { semana:'3–4', hold:'3–4 negativas de 5s', rpe:'7–8', series:'4x' },
+      { semana:'5', hold:'5 negativas de 5s', rpe:'8', series:'4x', milestone:'Padrão motor da transição aprendido' },
     ] },
-  { id:'mu-transicao', nome:'Transição Assistida', nivel:'Intermediate', semanas:4, metric:'reps', metricLabel:'Transições limpas (elástico/banda)', target:5,
-    guia:['Elástico ou banda de assistência reduz o peso durante a transição','Foco no cotovelo virando por baixo do corpo — não é empurrar pra cima','Reduza a assistência progressivamente a cada 1–2 semanas'],
+  { id:'mu-assistida', nome:'Transição Assistida', nivel:'Advanced', semanas:4, metric:'reps', metricLabel:'Transições limpas com banda', target:5,
+    guia:['Banda elástica reduz o peso na hora exata da transição',
+          'Foco: o cotovelo tem que GIRAR por baixo, não empurrar pra cima',
+          'Reduza a espessura da banda a cada 1–2 semanas',
+          'Peito colado na barra no ponto de virada'],
     fases:[
-      { semana:'1', hold:'Banda forte, 2–3 transições', rpe:'6–7', series:'4x2' },
-      { semana:'2', hold:'Banda forte, 3–4 transições', rpe:'7', series:'4x3' },
-      { semana:'3', hold:'Banda média, 3–4 transições', rpe:'7', series:'5x3' },
-      { semana:'4', hold:'Banda leve, 5 transições', rpe:'7–8', series:'5x3', milestone:'Pronto pra tentar a primeira muscle-up' },
+      { semana:'1', hold:'Banda forte, 2–3 transições', rpe:'7', series:'4x' },
+      { semana:'2', hold:'Banda forte, 4–5 transições', rpe:'7', series:'4x' },
+      { semana:'3', hold:'Banda média, 3–4 transições', rpe:'7–8', series:'5x' },
+      { semana:'4', hold:'Banda leve, 5 transições', rpe:'8', series:'5x', milestone:'Pronto pra primeira tentativa sem assistência' },
     ] },
-  { id:'mu-primeira', nome:'Primeira Muscle-Up', nivel:'Advanced', semanas:6, metric:'reps', metricLabel:'Muscle-ups limpos (sem kipping)', target:1,
-    guia:['Todo o trabalho anterior converge aqui — não pule etapa se os números da barra/paralela ainda não bateram a meta','Puxada explosiva + giro do cotovelo por baixo + finaliza em dip','Prefira poucas tentativas de qualidade a muitas tentativas com kipping'],
+  { id:'mu-primeira', nome:'Primeira Muscle-Up', nivel:'Advanced', semanas:6, metric:'reps', metricLabel:'Muscle-ups estritos', target:1,
+    guia:['Tudo converge aqui: false grip + puxada explosiva + giro de cotovelo + dip final',
+          'Poucas tentativas, muito descanso entre elas — é trabalho neural, não de resistência',
+          'Se começar a sair com kipping, pare a sessão: qualidade acima de quantidade'],
     fases:[
-      { semana:'1–2', hold:'Transição c/ banda leve', rpe:'7', series:'5x3' },
-      { semana:'3–4', hold:'Transição sem banda, assistida por salto', rpe:'7–8', series:'5x2' },
-      { semana:'5–6', hold:'Tentativas limpas, descanso completo entre elas', rpe:'8–9', series:'6–8 tentativas', milestone:'Primeira muscle-up estrita' },
+      { semana:'1–2', hold:'Tentativas com mini-assistência', rpe:'8', series:'5–6 tentativas' },
+      { semana:'3–4', hold:'Tentativas livres, descanso 3min', rpe:'8–9', series:'6 tentativas' },
+      { semana:'5–6', hold:'Primeira estrita', rpe:'9', series:'6–8 tentativas', milestone:'🏆 MUSCLE-UP CONQUISTADA' },
     ] },
-  { id:'mu-volume', nome:'Muscle-Up · Volume', nivel:'Elite', semanas:null, metric:'reps', metricLabel:'Muscle-ups por série (melhor)', target:5, final:true,
-    guia:['Agora o foco é consistência — várias séries de qualidade, não só uma rep isolada','Intercala com volume de barra/paralela nos dias que não são o foco principal'] },
+  { id:'mu-volume', nome:'Muscle-Up · Volume', nivel:'Elite', semanas:null, metric:'reps', metricLabel:'Muscle-ups na melhor série', target:5, final:true,
+    guia:['Agora é consistência: séries múltiplas com forma limpa',
+          'Mantenha volume de barra e paralela nos outros dias pra sustentar'] },
 ];
 
-/* Fundamentos de força — não são etapas com data, são números que sustentam as duas trilhas
-   acima. Sem meta de tempo: só o melhor registro de cada um, atualizado quando quiser. */
+/* ── 3. FRONT LEVER — puxar horizontal. Exige o dorsal mais forte das quatro. ── */
+const SKILLS_FRONTLEVER = [
+  { id:'fl-base', nome:'Base: Escápula & Core Pendurado', nivel:'Fundação', semanas:5, metric:'reps', metricLabel:'Scapular pull-ups (melhor série)', target:15,
+    guia:['Scapular pull-up: pendurado, só deprime as escápulas (ombro desce) sem dobrar o cotovelo',
+          'É o movimento mais importante e mais ignorado de toda a trilha do front lever',
+          'Hanging leg raise: pernas retas até a barra, sem balanço',
+          'Hollow body: mesma base da planche — core rígido é pré-requisito compartilhado'],
+    fases:[
+      { semana:'1–2', hold:'8 scap pull-ups · 8 leg raises', rpe:'6', series:'4x' },
+      { semana:'3–4', hold:'12 scap · 10 leg raises', rpe:'6–7', series:'4x' },
+      { semana:'5', hold:'15 scap · 12 leg raises retas', rpe:'7', series:'4x', milestone:'Escápula e core prontos' },
+    ] },
+  { id:'fl-tuck', nome:'Tuck Front Lever', nivel:'Basic', semanas:6, metric:'hold_s', metricLabel:'Hold (segundos)', target:20,
+    guia:['Pendurado, joelhos ao peito, corpo na horizontal, braços RETOS',
+          'Braço dobrado é o erro clássico — se dobrou, a série acabou',
+          'Escápulas deprimidas e retraídas o tempo todo',
+          'Peito aberto, olhar pra frente'],
+    fases:[
+      { semana:'1–2', hold:'5–8s', rpe:'7', series:'5x' },
+      { semana:'3–4', hold:'12–15s', rpe:'7–8', series:'5x' },
+      { semana:'5–6', hold:'20s', rpe:'8', series:'4–5x', milestone:'Tuck sólido' },
+    ] },
+  { id:'fl-adv', nome:'Advanced Tuck Front Lever', nivel:'Intermediate', semanas:8, metric:'hold_s', metricLabel:'Hold (segundos)', target:15,
+    guia:['Quadril abre até alinhar com o tronco, joelhos ainda a 90°',
+          'Trabalhe os negativos: do tuck, abre devagar e volta',
+          'Mantenha a lombar neutra — arquear tira a carga do lugar certo'],
+    fases:[
+      { semana:'1–3', hold:'5–8s', rpe:'8', series:'5x' },
+      { semana:'4–6', hold:'10–12s', rpe:'8', series:'5x' },
+      { semana:'7–8', hold:'15s', rpe:'8–9', series:'4–5x', milestone:'Pronto pra alavanca longa' },
+    ] },
+  { id:'fl-oneleg', nome:'One-Leg / Straddle Front Lever', nivel:'Advanced', semanas:10, metric:'hold_s', metricLabel:'Hold (segundos)', target:12,
+    guia:['Uma perna estendida, outra dobrada — alterne qual estende a cada série',
+          'Ou straddle: as duas estendidas e abertas',
+          'Escolha a variação que sua mobilidade permitir com forma limpa'],
+    fases:[
+      { semana:'1–4', hold:'4–6s', rpe:'8–9', series:'5x' },
+      { semana:'5–7', hold:'8–10s', rpe:'9', series:'5x' },
+      { semana:'8–10', hold:'12s', rpe:'9', series:'4–5x', milestone:'Pronto pra full' },
+    ] },
+  { id:'fl-full', nome:'Full Front Lever', nivel:'Elite', semanas:null, metric:'hold_s', metricLabel:'Hold (segundos)', target:8, final:true,
+    guia:['Corpo totalmente estendido na horizontal, braços retos, pendurado',
+          'Objetivo agora é tempo e limpeza, não nova progressão',
+          'Estimativa realista da trilha inteira: 12–24 meses'] },
+];
+
+/* ── 4. HANDSTAND — equilíbrio invertido. Mais técnica que força. ── */
+const SKILLS_HANDSTAND = [
+  { id:'hs-punho', nome:'Base: Punho & Ombro Invertido', nivel:'Fundação', semanas:3, metric:'hold_s', metricLabel:'Pike hold contra parede (segundos)', target:60,
+    guia:['Preparação de punho: 5min todo treino, sem exceção',
+          'Pike hold: quadril alto, mãos e pés no chão, ombros abertos empurrando o chão',
+          'Trabalhe mobilidade de ombro — handstand ruim quase sempre é ombro travado, não falta de força',
+          'Aprenda a SAIR da posição (cartwheel/pirueta) antes de subir de verdade'],
+    fases:[
+      { semana:'1', hold:'Pike 25–30s · mobilidade ombro 5min', rpe:'5', series:'4x' },
+      { semana:'2', hold:'Pike 40s', rpe:'5–6', series:'4x' },
+      { semana:'3', hold:'Pike 60s · saída ensaiada 10x', rpe:'6', series:'4x', milestone:'Punho pronto e saída segura' },
+    ] },
+  { id:'hs-parede-peito', nome:'Chest-to-Wall (barriga pra parede)', nivel:'Basic', semanas:6, metric:'hold_s', metricLabel:'Hold (segundos)', target:60,
+    guia:['Sobe de costas, caminhando os pés pela parede, peito voltado pra parede',
+          'Essa é a versão CORRETA — ensina o alinhamento reto que você quer no final',
+          'Corpo em linha: mão, ombro, quadril, calcanhar no mesmo eixo',
+          'Costela fechada, glúteo contraído, ponta do pé esticada',
+          'Evite a versão de costas pra parede: ela ensina uma banana, não um handstand'],
+    fases:[
+      { semana:'1–2', hold:'20–30s', rpe:'6', series:'4x' },
+      { semana:'3–4', hold:'40s', rpe:'6–7', series:'4x' },
+      { semana:'5–6', hold:'60s', rpe:'7', series:'4x', milestone:'Alinhamento correto memorizado' },
+    ] },
+  { id:'hs-kickup', nome:'Kick-Up & Equilíbrio Assistido', nivel:'Intermediate', semanas:8, metric:'hold_s', metricLabel:'Hold livre (segundos)', target:10,
+    guia:['Kick-up controlado: sobe com impulso suave, não com chute violento',
+          'Aprenda a corrigir com os DEDOS — pressiona os dedos pra não cair pra frente',
+          'Quando encostar de leve na parede, tenta tirar o pé e segurar 1–2s',
+          'Filme-se: você vai jurar que está reto e vai ver uma banana'],
+    fases:[
+      { semana:'1–3', hold:'Kick-up + 1–3s livre', rpe:'6–7', series:'8–10 tentativas' },
+      { semana:'4–6', hold:'5s livre', rpe:'7', series:'8–10 tentativas' },
+      { semana:'7–8', hold:'10s livre', rpe:'7–8', series:'8–10 tentativas', milestone:'Equilíbrio próprio encontrado' },
+    ] },
+  { id:'hs-livre', nome:'Freestanding Handstand', nivel:'Advanced', semanas:10, metric:'hold_s', metricLabel:'Hold livre (segundos)', target:30,
+    guia:['Sem parede nenhuma, equilíbrio 100% seu',
+          'Correções vêm dos dedos e do punho, nunca de dobrar o corpo',
+          'Consistência importa mais que recorde: 10 tentativas curtas por sessão, todo dia de skill',
+          'Handstand é a única das quatro que melhora com frequência alta e volume baixo'],
+    fases:[
+      { semana:'1–4', hold:'10–15s', rpe:'7', series:'10 tentativas' },
+      { semana:'5–7', hold:'20s', rpe:'7–8', series:'10 tentativas' },
+      { semana:'8–10', hold:'30s', rpe:'8', series:'8–10 tentativas', milestone:'🏆 HANDSTAND LIVRE CONSOLIDADO' },
+    ] },
+  { id:'hs-hspu', nome:'Handstand Push-Up (bônus)', nivel:'Elite', semanas:null, metric:'reps', metricLabel:'HSPU na parede (melhor série)', target:5, final:true,
+    guia:['Evolução natural depois do handstand livre estável',
+          'Comece na parede, amplitude parcial, e vá aumentando',
+          'Ombro precisa estar sólido — não pule etapa aqui'] },
+];
+
+/* Fundamentos — números-base que sustentam as quatro trilhas simultaneamente.
+   Sem prazo: registre o melhor de cada um quando quiser testar. */
 const FUNDAMENTOS = [
   { id:'fund-barra', nome:'Barra Fixa', metric:'reps', metricLabel:'Reps estritas (melhor série)', target:20, icon:Dumbbell },
   { id:'fund-paralela', nome:'Paralela (Dips)', metric:'reps', metricLabel:'Reps estritas (melhor série)', target:20, icon:Dumbbell },
   { id:'fund-flexao', nome:'Flexões', metric:'reps', metricLabel:'Reps estritas (melhor série)', target:50, icon:Activity },
-  { id:'fund-core', nome:'Core (prancha ou L-sit)', metric:'hold_s', metricLabel:'Hold (segundos)', target:60, icon:Gauge },
+  { id:'fund-core', nome:'Hollow Body Hold', metric:'hold_s', metricLabel:'Hold (segundos)', target:60, icon:Gauge },
+  { id:'fund-scap', nome:'Scapular Pull-up', metric:'reps', metricLabel:'Reps controladas', target:15, icon:Dumbbell },
+  { id:'fund-pike', nome:'Pike Push-up', metric:'reps', metricLabel:'Reps (melhor série)', target:15, icon:Activity },
 ];
 
 /* Calcula janelas de data de cada etapa e identifica a etapa atual pela data de hoje.
@@ -1629,6 +1790,19 @@ function App() {
   const treinoHojeReal = useMemo(() => treinos.find(t => t.data === hojeISO()), [treinos]);
   const trilhaPlanche = useMemo(() => calcTrilhaSkills(SKILLS_PLANCHE), []);
   const trilhaMuscleUp = useMemo(() => calcTrilhaSkills(SKILLS_MUSCLEUP), []);
+  const trilhaFrontLever = useMemo(() => calcTrilhaSkills(SKILLS_FRONTLEVER), []);
+  const trilhaHandstand = useMemo(() => calcTrilhaSkills(SKILLS_HANDSTAND), []);
+  /* metadados das 4 trilhas — usados no seletor, nos cards de resumo e no detalhe */
+  const TRILHAS = {
+    planche:   { nome:'Planche',     dados:trilhaPlanche,    cor:T.cyan,   dia:'QUA',
+                 sobre:'Empurrar horizontal — a mais longa das quatro (1,5–3 anos). Punho e escápula são o gargalo real, não o peitoral. Treina na quarta, junto do handstand.' },
+    handstand: { nome:'Handstand',   dados:trilhaHandstand,  cor:T.amber,  dia:'QUA',
+                 sobre:'Equilíbrio invertido — mais técnica que força (4–12 meses). É a única das quatro que melhora com frequência alta e volume baixo: tentativas curtas, todo dia de skill.' },
+    frontlever:{ nome:'Front Lever', dados:trilhaFrontLever, cor:T.violet, dia:'SEX',
+                 sobre:'Puxar horizontal — exige o dorsal mais forte das quatro (12–24 meses). Scapular pull-up é o exercício mais subestimado da trilha. Treina na sexta, junto do muscle-up.' },
+    muscleup:  { nome:'Muscle-Up',   dados:trilhaMuscleUp,   cor:T.coral,  dia:'SEX',
+                 sobre:'Puxada explosiva + transição — a mais rápida das quatro (6–12 meses). False grip e negativas são o atalho honesto; kipping é o atalho que não constrói nada.' },
+  };
   const pesoTend = useMemo(() => calcPesoTendencia(serie), [serie]);
   const leituraPeso = useMemo(() => lerPesoTendencia(pesoTend), [pesoTend]);
   const pesoAtualKg = pesoTend.atual ?? PERFIL.pesoKg;
@@ -2915,7 +3089,8 @@ function App() {
 
         {/* ═══ SKILLS · TRILHA DE CALISTENIA ═══ */}
         {aba==='skills' && (() => {
-          const { etapas, atualIdx } = trilhaSel==='planche' ? trilhaPlanche : trilhaMuscleUp;
+          const trilhaAtiva = TRILHAS[trilhaSel] || TRILHAS.planche;
+          const { etapas, atualIdx } = trilhaAtiva.dados;
           const atual = etapas[atualIdx];
           const logsAtual = caliLogs[atual.id] || [];
           const leitura = lerProgressoSkill(atual, logsAtual);
@@ -2923,27 +3098,32 @@ function App() {
           const pct = melhor!=null ? Math.min(100, Math.round(melhor/atual.target*100)) : 0;
           const fmtData = iso => iso.split('-').reverse().join('/');
 
-          /* Visão concomitante — as duas trilhas rodam na mesma janela (ANCORA_SKILLS),
-             então mostramos o estágio atual de ambas lado a lado, sempre visível,
-             independente de qual trilha está selecionada pra registro/detalhe abaixo. */
-          const resumoTrilha = (nome, dados, cor, id) => {
-            const at = dados.etapas[dados.atualIdx];
+          /* Visão concomitante — as quatro trilhas rodam na mesma janela (ANCORA_SKILLS),
+             agrupadas pelo dia de treino em que cada par acontece. Sempre visível,
+             independente de qual trilha está selecionada pro detalhe abaixo. */
+          const resumoTrilha = (id) => {
+            const t = TRILHAS[id];
+            const at = t.dados.etapas[t.dados.atualIdx];
             const logs = caliLogs[at.id] || [];
             const best = logs.length ? Math.max(...logs.map(l=>l.valor)) : null;
             const p = best!=null ? Math.min(100, Math.round(best/at.target*100)) : 0;
+            const un = at.metric==='hold_s'?'s':at.metric==='angulo'?'°':' reps';
             return (
               <button key={id} onClick={()=>setTrilhaSel(id)}
-                style={{ flex:1, textAlign:'left', background:T.card, border:`1px solid ${trilhaSel===id?cor:T.brd}`,
+                style={{ textAlign:'left', background:T.card, border:`1px solid ${trilhaSel===id?t.cor:T.brd}`,
                          borderRadius:11, padding:'11px 12px', cursor:'pointer' }}>
-                <div style={{ fontSize:9, color:T.t3, fontFamily:T.mono, textTransform:'uppercase', letterSpacing:.6 }}>{nome}</div>
-                <div style={{ fontSize:12.5, fontWeight:800, color:T.t1, marginTop:3, lineHeight:1.3 }}>
-                  {at.num?`#${at.num} `:''}{at.nome}
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:6 }}>
+                  <span style={{ fontSize:9.5, color:t.cor, fontFamily:T.mono, textTransform:'uppercase', letterSpacing:.6, fontWeight:700 }}>{t.nome}</span>
+                  <span style={{ fontSize:8.5, color:T.t3, fontFamily:T.mono }}>{t.dia}</span>
+                </div>
+                <div style={{ fontSize:12, fontWeight:800, color:T.t1, marginTop:4, lineHeight:1.3 }}>
+                  {at.nome}
                 </div>
                 <div style={{ height:5, background:T.brd, borderRadius:3, marginTop:7, overflow:'hidden' }}>
-                  <div style={{ width:`${p}%`, height:'100%', borderRadius:3, background:cor }}/>
+                  <div style={{ width:`${p}%`, height:'100%', borderRadius:3, background:t.cor }}/>
                 </div>
                 <div style={{ fontSize:9.5, color:T.t3, fontFamily:T.mono, marginTop:5 }}>
-                  {best!=null ? `${best}${at.metric==='hold_s'?'s':at.metric==='angulo'?'°':' reps'} · ${p}%` : 'sem registro ainda'}
+                  {best!=null ? `${best}${un} · ${p}% da meta` : 'sem registro ainda'}
                 </div>
               </button>
             );
@@ -2951,34 +3131,36 @@ function App() {
           return (
             <>
               <Card style={{ marginBottom:12 }}>
-                <Eyebrow icon={Sparkles}>Progresso concomitante</Eyebrow>
+                <Eyebrow icon={Sparkles}>As 4 skills · progresso concomitante</Eyebrow>
                 <div style={{ fontSize:10.5, color:T.t3, marginTop:4, marginBottom:10, lineHeight:1.5 }}>
-                  As duas trilhas correm na mesma janela de tempo — puxada/empurrada (Muscle-Up) e estáticas (Planche)
-                  treinam padrões diferentes, então avançam juntas sem competir.
+                  Quarta treina empurrar/vertical (Planche + Handstand), sexta treina puxar/horizontal
+                  (Front Lever + Muscle-Up). Padrões opostos em dias opostos — nenhum grupo pega carga
+                  dois dias seguidos.
                 </div>
-                <div style={{ display:'flex', gap:9 }}>
-                  {resumoTrilha('Planche', trilhaPlanche, T.cyan, 'planche')}
-                  {resumoTrilha('Muscle-Up', trilhaMuscleUp, T.coral, 'muscleup')}
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:9 }}>
+                  {['planche','handstand','frontlever','muscleup'].map(resumoTrilha)}
                 </div>
               </Card>
 
-              <div style={{ display:'flex', gap:8, marginBottom:12 }}>
-                {[['planche','Planche'],['muscleup','Muscle-Up']].map(([id,nome]) => (
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
+                {Object.entries(TRILHAS).map(([id,t]) => (
                   <button key={id} onClick={()=>setTrilhaSel(id)}
-                    style={{ flex:1, background: trilhaSel===id?T.coral:T.lift, border:`1px solid ${trilhaSel===id?T.coral:T.brd2}`,
-                             borderRadius:9, padding:'9px', fontSize:12.5, fontWeight:800,
+                    style={{ background: trilhaSel===id?t.cor:T.lift, border:`1px solid ${trilhaSel===id?t.cor:T.brd2}`,
+                             borderRadius:9, padding:'9px', fontSize:12, fontWeight:800,
                              color: trilhaSel===id?T.deep:T.t2, cursor:'pointer' }}>
-                    {nome} <span style={{ fontSize:9.5, fontWeight:600, opacity:.75 }}>· detalhes</span>
+                    {t.nome}
                   </button>
                 ))}
               </div>
 
               <Card style={{ marginBottom:12, background:T.panel }}>
-                <Eyebrow c={T.coral} icon={Info}>Sobre a trilha</Eyebrow>
+                <Eyebrow c={trilhaAtiva.cor} icon={Info}>Sobre a trilha · {trilhaAtiva.nome}</Eyebrow>
                 <div style={{ fontSize:12, color:T.t2, marginTop:6, lineHeight:1.6 }}>
-                  {trilhaSel==='planche'
-                    ? 'Progressão de longo prazo em calistenia estática, à parte do treino de força e da corrida. As janelas de tempo são estimativas — planche em especial varia bastante de pessoa pra pessoa. Total estimado da trilha completa: ~12–18 meses, com folga individual entre etapas.'
-                    : 'Progressão de puxada + empurrada até a transição completa da muscle-up. Roda concomitante com a trilha de Planche, no mesmo calendário — treinam grupos musculares e padrões de movimento diferentes, cabem nos mesmos dias de calistenia sem disputar recuperação entre si.'}
+                  {trilhaAtiva.sobre}
+                </div>
+                <div style={{ fontSize:11, color:T.t3, marginTop:8, lineHeight:1.5, fontStyle:'italic' }}>
+                  Regra que vale pras quatro: só avance de etapa quando segurar a meta com forma limpa em
+                  2–3 sessões seguidas. As semanas são estimativa — o marcador real é a meta, não o calendário.
                 </div>
               </Card>
 
@@ -3114,7 +3296,7 @@ function App() {
                     </div>
                   ))}
                   {atualIdx===etapas.length-1 && (
-                    <div style={{ fontSize:11.5, color:T.t3 }}>Essa é a última etapa da trilha — {trilhaSel==='planche'?'planche full consolidado':'muscle-up de volume'}.</div>
+                    <div style={{ fontSize:11.5, color:T.t3 }}>Essa é a última etapa da trilha de {trilhaAtiva.nome} — agora é consolidar.</div>
                   )}
                 </div>
               </Card>
