@@ -137,6 +137,17 @@ const T = {
   sans:"'Inter',system-ui,-apple-system,sans-serif",
   disp:"'Bebas Neue','Inter',sans-serif",
 };
+/* Escala tipográfica — 6 níveis, cada um com papel definido. Antes havia 15 tamanhos
+   diferentes espalhados, o que diluía a hierarquia: quando tudo é levemente diferente,
+   nada se destaca. Cada nível aqui responde a uma pergunta do atleta. */
+const FS = {
+  hero:  32,  // o número que responde "e aí?" — prontidão, sRPE, prescrição do dia
+  title: 20,  // "que card é esse?" — títulos de seção
+  sub:   14,  // "qual o item?" — nome de exercício, subtítulo
+  body:  12,  // "o que isso quer dizer?" — texto corrido, explicações
+  meta:  10,  // "qual o detalhe?" — legendas, unidades, metadados
+  label:  9,  // rótulo em caixa alta (mono) — eyebrows e cabeçalhos de coluna
+};
 const FONTS = "@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');";
 
 const ATHLETE = { fcMax:195, fcRest:55 };
@@ -1447,7 +1458,7 @@ const Card = ({ children, style, pad=16 }) => (
   <div style={{ background:T.card, border:`1px solid ${T.brd}`, borderRadius:16, padding:pad, ...style }}>{children}</div>
 );
 const Eyebrow = ({ children, c=T.t3, icon:Icon }) => (
-  <div style={{ fontSize:10, fontWeight:600, letterSpacing:1.6, textTransform:'uppercase', color:c,
+  <div style={{ fontSize:FS.label, fontWeight:600, letterSpacing:1.6, textTransform:'uppercase', color:c,
                 fontFamily:T.mono, display:'flex', alignItems:'center', gap:6 }}>
     {Icon && <Icon size={12} strokeWidth={2.4}/>}{children}
   </div>
@@ -1465,9 +1476,9 @@ const Big = ({ children, c=T.t1, size=30 }) => (
 );
 const Stat = ({ label, value, c=T.t1, sub }) => (
   <div style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:10, padding:'9px 12px' }}>
-    <div style={{ fontSize:9, color:T.t3, fontFamily:T.mono, letterSpacing:.8, textTransform:'uppercase' }}>{label}</div>
+    <div style={{ fontSize:FS.label, color:T.t3, fontFamily:T.mono, letterSpacing:.8, textTransform:'uppercase' }}>{label}</div>
     <div style={{ marginTop:3 }}><Big c={c} size={24}>{value}</Big></div>
-    {sub && <div style={{ fontSize:10, color:T.t3, marginTop:2 }}>{sub}</div>}
+    {sub && <div style={{ fontSize:FS.meta, color:T.t3, marginTop:2 }}>{sub}</div>}
   </div>
 );
 const Slider = ({ label, hint, value, min, max, step=1, cor=T.coral, fmt, onChange }) => {
@@ -1484,7 +1495,7 @@ const Slider = ({ label, hint, value, min, max, step=1, cor=T.coral, fmt, onChan
   return (
     <div>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:6, gap:8 }}>
-        <div style={{ fontSize:11, color:T.t2 }}>
+        <div style={{ fontSize:FS.body-0.5, color:T.t2 }}>
           {label}{hint && <span style={{ color:T.t3, fontFamily:T.mono, fontSize:9 }}> · {hint}</span>}
         </div>
         <span style={{ fontFamily:T.disp, fontSize:20, color:v==null?T.t3:cor, letterSpacing:.5, lineHeight:1 }}>
@@ -1627,7 +1638,8 @@ const tipoIcone = tipo => tipo==='Chave'?Zap : tipo==='Teste'?Flag : tipo==='Lon
    Mostra: etapa atual, semana X de Y dentro da etapa, e a linha exata de séries/reps/RPE
    daquela semana, além do progresso vs. meta. Design: barra lateral na cor da trilha,
    número grande pro que importa (a prescrição), metadados em mono pequeno. */
-function SkillHoje({ trilhaKey, TRILHAS, caliLogs }) {
+function SkillHoje({ trilhaKey, TRILHAS, caliLogs, onRegistrar }) {
+  const [val, setVal] = useState('');
   const t = TRILHAS[trilhaKey];
   if (!t) return null;
   const p = prescricaoSkillHoje(t.dados);
@@ -1694,18 +1706,35 @@ function SkillHoje({ trilhaKey, TRILHAS, caliLogs }) {
       {etapa.guia?.length > 0 && (
         <div style={{ marginTop:9, paddingTop:9, borderTop:`1px solid ${T.brd}` }}>
           {etapa.guia.slice(0,2).map((g,i) => (
-            <div key={i} style={{ display:'flex', gap:7, fontSize:10.5, color:T.t2,
+            <div key={i} style={{ display:'flex', gap:7, fontSize:FS.meta+0.5, color:T.t2,
                                   lineHeight:1.5, marginBottom:i===0?4:0 }}>
               <span style={{ color:t.cor, flexShrink:0 }}>·</span>{g}
             </div>
           ))}
         </div>
       )}
+
+      {/* Registro rápido — anota a marca sem sair da tela, no meio do treino */}
+      {onRegistrar && (
+        <div style={{ display:'flex', gap:6, marginTop:10, paddingTop:10, borderTop:`1px solid ${T.brd}` }}>
+          <input type="number" inputMode="decimal" value={val} onChange={e=>setVal(e.target.value)}
+            placeholder={etapa.metric==='hold_s' ? 'seg' : etapa.metric==='angulo' ? 'graus' : 'reps'}
+            style={{ flex:1, minWidth:0, background:T.lift, border:`1px solid ${T.brd2}`, borderRadius:7,
+                     padding:'8px 10px', color:T.t1, fontSize:FS.body+1, fontFamily:T.mono,
+                     fontWeight:700, outline:'none' }}/>
+          <button onClick={()=>{ if(val){ onRegistrar(etapa.id, val); setVal(''); } }}
+            style={{ background:t.cor, border:'none', borderRadius:7, padding:'0 14px',
+                     fontSize:FS.meta+1, fontWeight:800, color:T.deep, cursor:'pointer',
+                     display:'flex', alignItems:'center', gap:5, whiteSpace:'nowrap' }}>
+            <Plus size={13}/>Marca
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function ForcaCard({ sessao, dowLabel, aberta, onToggle, dow, TRILHAS, caliLogs }) {
+function ForcaCard({ sessao, dowLabel, aberta, onToggle, dow, TRILHAS, caliLogs, onRegistrar }) {
   if (!sessao) return null;
   /* Quarta treina Handstand+Planche, sexta treina Front Lever+Muscle-Up.
      Nesses dias, mostramos a prescrição exata da semana atual de cada trilha
@@ -1751,7 +1780,7 @@ function ForcaCard({ sessao, dowLabel, aberta, onToggle, dow, TRILHAS, caliLogs 
             Skills de hoje · prescrição da semana
           </div>
           {skillsDoDia.map(k => (
-            <SkillHoje key={k} trilhaKey={k} TRILHAS={TRILHAS} caliLogs={caliLogs || {}}/>
+            <SkillHoje key={k} trilhaKey={k} TRILHAS={TRILHAS} caliLogs={caliLogs || {}} onRegistrar={onRegistrar}/>
           ))}
         </div>
       )}
@@ -1845,6 +1874,8 @@ function App() {
      o resto começa fechado pra não floodar a tela. */
   const [secoesAbertas, setSecoesAbertas] = useState({
     corrida: true, forca: true, calorias: false, wellness: false,
+    // aba Carga: PMC e ACWR ficam abertos (essenciais); o resto entra fechado
+    monotonia: false, modalidade: false, resumoCal: false, ef: false,
   });
   const toggleSecao = id => setSecoesAbertas(s => ({ ...s, [id]: !s[id] }));
 
@@ -2153,12 +2184,18 @@ function App() {
                 : { c:T.mint, txt:`Siga como planejado.` };
   }, [sessaoHoje, ultimo]);
 
-  const abas = [
-    { k:'hoje', n:'Hoje', I:Gauge }, { k:'diario', n:'Diário', I:NotebookPen },
-    { k:'baselines', n:'Baselines', I:HeartPulse }, { k:'carga', n:'Carga', I:BarChart3 },
-    { k:'treinos', n:'Treinos', I:Footprints }, { k:'skills', n:'Skills', I:Sparkles },
-    { k:'plano', n:'Plano', I:CalendarDays }, { k:'sync', n:'Strava', I:MessageSquareText },
+  /* Navegação em 2 níveis: 4 grupos principais (cabem na tela sem cortar) e, dentro
+     de cada um, chips horizontais pras sub-telas. Oito abas de topo estouravam a
+     largura no celular e cortavam o último item — além de ser mais destino do que
+     alguém consegue manter na cabeça. */
+  const GRUPOS = [
+    { k:'hoje',      n:'Hoje',      I:Gauge,        subs:[{k:'hoje', n:'Sessões do dia'}] },
+    { k:'registrar', n:'Registrar', I:NotebookPen,  subs:[{k:'diario',n:'Diário'},{k:'treinos',n:'Treinos'},{k:'sync',n:'Strava'}] },
+    { k:'evolucao',  n:'Evolução',  I:BarChart3,    subs:[{k:'carga', n:'Carga'},{k:'baselines',n:'Baselines'}] },
+    { k:'plano',     n:'Plano',     I:CalendarDays, subs:[{k:'plano', n:'Calendário'},{k:'skills',n:'Skills'}] },
   ];
+  const grupoDe = sub => GRUPOS.find(g => g.subs.some(s => s.k === sub)) || GRUPOS[0];
+  const grupoAtivo = grupoDe(aba);
   const progMeso = posHoje ? (posHoje.nSem-1)/posHoje.totalSem : 0;
 
   return (
@@ -2239,16 +2276,39 @@ function App() {
               </div>
             </div>
           )}
-          <nav style={{ display:'flex', gap:2, overflowX:'auto' }}>
-            {abas.map(a => (
-              <button key={a.k} onClick={()=>setAba(a.k)} style={{
-                background:'transparent', border:'none', cursor:'pointer', padding:'9px 11px', fontSize:12,
-                fontWeight:aba===a.k?700:500, color:aba===a.k?T.coral:T.t2, whiteSpace:'nowrap',
-                display:'flex', alignItems:'center', gap:6,
-                borderBottom:`2px solid ${aba===a.k?T.coral:'transparent'}` }}>
-                <a.I size={13.5} strokeWidth={aba===a.k?2.6:2}/>{a.n}</button>
-            ))}
+          <nav style={{ display:'flex', gap:2 }}>
+            {GRUPOS.map(g => {
+              const ativo = grupoAtivo.k === g.k;
+              return (
+                <button key={g.k} onClick={()=>setAba(g.subs[0].k)} style={{
+                  flex:1, background:'transparent', border:'none', cursor:'pointer',
+                  padding:'9px 4px', fontSize:FS.body,
+                  fontWeight:ativo?700:500, color:ativo?T.coral:T.t2, whiteSpace:'nowrap',
+                  display:'flex', alignItems:'center', justifyContent:'center', gap:5,
+                  borderBottom:`2px solid ${ativo?T.coral:'transparent'}`, transition:'color .15s' }}>
+                  <g.I size={14} strokeWidth={ativo?2.6:2}/>{g.n}</button>
+              );
+            })}
           </nav>
+          {/* Sub-navegação — só aparece quando o grupo tem mais de uma tela */}
+          {grupoAtivo.subs.length > 1 && (
+            <div style={{ display:'flex', gap:6, padding:'9px 0 2px', overflowX:'auto' }}>
+              {grupoAtivo.subs.map(s => {
+                const on = aba === s.k;
+                return (
+                  <button key={s.k} onClick={()=>setAba(s.k)} style={{
+                    background: on ? T.coral : T.lift,
+                    color: on ? T.deep : T.t2,
+                    border:`1px solid ${on ? T.coral : T.brd2}`,
+                    borderRadius:999, padding:'5px 13px', fontSize:FS.meta+0.5,
+                    fontWeight:on?800:600, cursor:'pointer', whiteSpace:'nowrap',
+                    transition:'all .15s' }}>
+                    {s.n}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </header>
 
@@ -2375,7 +2435,7 @@ function App() {
 
             {/* Força & Calistenia de hoje — junto da corrida, no topo, como sessão prioritária do dia */}
             <ForcaCard sessao={sessaoForcaHoje} dowLabel={DIAS[new Date(hojeISO()+'T12:00:00').getDay()]}
-              dow={new Date(hojeISO()+'T12:00:00').getDay()} TRILHAS={TRILHAS} caliLogs={caliLogs}
+              dow={new Date(hojeISO()+'T12:00:00').getDay()} TRILHAS={TRILHAS} caliLogs={caliLogs} onRegistrar={registrarCali}
               aberta={openForca} onToggle={()=>setOpenForca(!openForca)} />
 
             {/* ═══ Alerta calórico & jejum — periodizado pela demanda do dia ═══ */}
@@ -2420,6 +2480,41 @@ function App() {
                 {' '}173cm, 32a. Recalcula sozinho a cada novo registro de peso.
               </div>
             </Secao>
+
+            {/* Orientação — aparece só quando falta dado essencial pro app funcionar bem.
+               Sem isso, cards simplesmente sumiam sem explicar por quê. */}
+            {(() => {
+              const hojeReg = diario[hojeISO()] || {};
+              const faltas = [];
+              if (hojeReg.fc == null && hojeReg.rmssd == null) faltas.push('HRV e FC repouso');
+              if (hojeReg.sonoDuracao == null) faltas.push('sono');
+              if (hojeReg.wFad == null) faltas.push('percepção');
+              const semBase = (baselines.rmssd?.resumo?.n ?? 0) < 3;
+              if (!faltas.length && !semBase) return null;
+              return (
+                <Card style={{ marginBottom:12, borderLeft:`3px solid ${T.blue}`, background:T.blue+'0A' }}>
+                  <Eyebrow c={T.blue} icon={Info}>Complete o registro de hoje</Eyebrow>
+                  <div style={{ fontSize:FS.body, color:T.t2, marginTop:7, lineHeight:1.6 }}>
+                    {faltas.length > 0 && (
+                      <>Falta registrar <b style={{color:T.t1}}>{faltas.join(', ')}</b> no Diário — sem isso a
+                      prontidão de hoje não calcula e o diagnóstico do coach fica incompleto.</>
+                    )}
+                    {semBase && (
+                      <div style={{ marginTop: faltas.length?6:0 }}>
+                        As baselines precisam de pelo menos 3 dias de dados pra começar a comparar. Quanto mais
+                        dias seguidos você registrar, mais preciso fica todo o resto do app.
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={()=>{ setDataSel(hojeISO()); setAba('diario'); }}
+                    style={{ marginTop:11, background:T.blue, border:'none', borderRadius:8,
+                             padding:'9px 16px', fontSize:FS.body, fontWeight:800, color:T.deep,
+                             cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
+                    <NotebookPen size={14}/>Registrar agora
+                  </button>
+                </Card>
+              );
+            })()}
 
             {/* ═══ PRONTIDÃO, WELLNESS & FADIGA — grupo colapsável, prioridade 3 do dia ═══ */}
             <div style={{ margin:'4px 2px 8px' }}>
@@ -2885,9 +2980,10 @@ function App() {
             {monoStrain && (() => {
               const ms = monotoniaStatus(monoStrain.monotonia);
               return (
-                <Card style={{ marginBottom:12 }}>
-                  <Eyebrow icon={Activity}>Monotonia & Strain <span style={{color:T.t3, fontWeight:400}}>· Foster 1998</span></Eyebrow>
-                  <div style={{ fontSize:10.5, color:T.t3, margin:'3px 0 11px', lineHeight:1.5 }}>
+                <Secao id="monotonia" titulo="Monotonia & Strain" icon={Activity} cor={ms.c}
+                  aberta={secoesAbertas.monotonia} onToggle={()=>toggleSecao('monotonia')}
+                  peek={`Monotonia ${monoStrain.monotonia} · ${ms.txt} · strain ${monoStrain.strain}`}>
+                  <div style={{ fontSize:FS.meta+0.5, color:T.t3, marginBottom:11, lineHeight:1.5 }}>
                     Complementa o ACWR: mede se a carga varia dia a dia ou fica sempre igual — carga monótona
                     é fator de risco mesmo com volume moderado.
                   </div>
@@ -2908,12 +3004,13 @@ function App() {
                     <CoachNote leitura={{ nivel:'alerta',
                       txt:'Carga muito repetitiva nos últimos 7 dias. Mesmo sem ACWR alto, isso é fator de risco isolado — intercale dias claramente mais leves e mais fortes.' }}/>
                   )}
-                </Card>
+                </Secao>
               );
             })()}
 
-            <Card>
-              <Eyebrow icon={Dumbbell}>Carga por modalidade · 14 dias</Eyebrow>
+            <Secao id="modalidade" titulo="Carga por modalidade · 14 dias" icon={Dumbbell}
+              aberta={secoesAbertas.modalidade} onToggle={()=>toggleSecao('modalidade')}
+              peek={leituraModal?.txt || 'Divisão de carga entre corrida e musculação.'}>
               <ResponsiveContainer width="100%" height={135}>
                 <BarChart data={serie.slice(-14)} margin={{top:12,right:4,bottom:0,left:-26}}>
                   <CartesianGrid stroke={T.brd} strokeDasharray="3 6" vertical={false}/>
@@ -2926,7 +3023,7 @@ function App() {
               </ResponsiveContainer>
               <Legenda itens={[[T.coral,'Corrida'],[T.violet,'Musculação']]}/>
               <CoachNote leitura={leituraModal} titulo="Balanço híbrido"/>
-            </Card>
+            </Secao>
 
             {/* Resumo calórico da semana — plano por dia + déficit acumulado */}
             {(() => {
@@ -2948,9 +3045,10 @@ function App() {
               const diasPassados = linhas.filter(l=>l.passado).length;
               const projKgSemana = +((totalDeficit / diasPassados * 7) / 7700).toFixed(2); // ~7700kcal/kg de gordura
               return (
-                <Card style={{ marginTop:12 }}>
-                  <Eyebrow c={T.coral} icon={Flame}>Resumo calórico da semana</Eyebrow>
-                  <div style={{ display:'flex', flexDirection:'column', gap:6, marginTop:11 }}>
+                <Secao id="resumoCal" titulo="Resumo calórico da semana" icon={Flame} cor={T.coral}
+                  aberta={secoesAbertas.resumoCal} onToggle={()=>toggleSecao('resumoCal')}
+                  peek={diasPassados>0 ? `Déficit acumulado ${totalDeficit} kcal em ${diasPassados} dia(s) · ~${Math.abs(projKgSemana)}kg/semana` : 'Plano calórico dia a dia da semana.'}>
+                  <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
                     {linhas.map(l => (
                       <div key={l.iso} style={{ display:'flex', alignItems:'center', gap:8,
                         background: l.isHoje?T.lift:'transparent', borderRadius:8, padding:'6px 8px',
@@ -2983,13 +3081,14 @@ function App() {
                     Plano por dia, não o executado — o quanto você realmente comeu não entra aqui.
                     Serve pra ver se a semana está periodizada certo: déficit maior nos dias leves, menor nos pesados.
                   </div>
-                </Card>
+                </Secao>
               );
             })()}
 
-            <Card style={{ marginTop:12 }}>
-              <Eyebrow icon={HeartPulse}>Eficiência aeróbica · rodagens</Eyebrow>
-              <div style={{ fontSize:10.5, color:T.t3, margin:'3px 0 6px' }}>
+            <Secao id="ef" titulo="Eficiência aeróbica · rodagens" icon={HeartPulse}
+              aberta={secoesAbertas.ef} onToggle={()=>toggleSecao('ef')}
+              peek={leituraEF?.txt || 'Metros por batimento nas rodagens fáceis.'}>
+              <div style={{ fontSize:FS.meta+0.5, color:T.t3, marginBottom:6 }}>
                 EF = metros por minuto ÷ batimento — só sessões ≥55% fáceis, pra comparar igual com igual
               </div>
               {efSerie.filter(x=>x.facil).length >= 2 ? (
@@ -3006,7 +3105,7 @@ function App() {
                 <div style={{ fontSize:11, color:T.t3, padding:'14px 0' }}>Registre mais rodagens fáceis pra curva aparecer.</div>
               )}
               <CoachNote leitura={leituraEF} titulo="Tendência da curva"/>
-            </Card>
+            </Secao>
 
             {(() => {
               const lt2 = treinosOrd.filter(t => (t.zonas?.LT2||0) >= 40 && t.paceSeg > 0);
@@ -3365,34 +3464,80 @@ function App() {
                     <div style={{ height:8, background:T.brd, borderRadius:4, marginTop:12, overflow:'hidden' }}>
                       <div style={{ width:`${pct}%`, height:'100%', borderRadius:4, background:`linear-gradient(90deg, ${T.cyan}, ${trilhaAtiva.cor})` }}/>
                     </div>
-                    <div style={{ fontSize:10, color:T.t3, fontFamily:T.mono, marginTop:5 }}>
+                    <div style={{ fontSize:FS.meta, color:T.t3, fontFamily:T.mono, marginTop:5 }}>
                       melhor marca: {melhor}{atual.metric==='hold_s'?'s':atual.metric==='angulo'?'°':' reps'} · {pct}% da meta
                     </div>
                   </>
                 )}
 
-                <div style={{ display:'flex', gap:8, marginTop:13 }}>
-                  <input type="number" value={caliInput} onChange={e=>setCaliInput(e.target.value)}
-                    placeholder={atual.metricLabel}
-                    style={{ flex:1, background:T.lift, border:`1px solid ${T.brd2}`, borderRadius:8,
-                             padding:'9px 11px', color:T.t1, fontSize:14, fontFamily:T.mono, fontWeight:600, outline:'none' }}/>
-                  <button onClick={()=>registrarCali(atual.id, caliInput)}
-                    style={{ background:`linear-gradient(135deg, ${trilhaAtiva.cor}, ${trilhaAtiva.cor}CC)`, border:'none', borderRadius:8,
-                             padding:'0 16px', fontSize:12, fontWeight:800, color:T.deep, cursor:'pointer' }}>
-                    Registrar
-                  </button>
+                {/* Registro — bloco dedicado, com contexto do que se está medindo */}
+                <div style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:10,
+                              padding:'12px 13px', marginTop:13 }}>
+                  <div style={{ fontSize:FS.label, fontFamily:T.mono, color:T.t3, letterSpacing:.8,
+                                textTransform:'uppercase', marginBottom:3 }}>
+                    Registrar marca de hoje
+                  </div>
+                  <div style={{ fontSize:FS.body, color:T.t2, marginBottom:9, lineHeight:1.5 }}>
+                    {atual.metricLabel} — anote a <b style={{color:T.t1}}>melhor série</b> da sessão de hoje.
+                  </div>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <input type="number" inputMode="decimal" value={caliInput} onChange={e=>setCaliInput(e.target.value)}
+                      placeholder={atual.metric==='hold_s' ? 'segundos' : atual.metric==='angulo' ? 'graus' : 'repetições'}
+                      style={{ flex:1, background:T.card, border:`1px solid ${T.brd2}`, borderRadius:8,
+                               padding:'11px 13px', color:T.t1, fontSize:FS.sub+2, fontFamily:T.mono, fontWeight:700, outline:'none' }}/>
+                    <button onClick={()=>registrarCali(atual.id, caliInput)}
+                      style={{ background:`linear-gradient(135deg, ${trilhaAtiva.cor}, ${trilhaAtiva.cor}CC)`, border:'none', borderRadius:8,
+                               padding:'0 18px', fontSize:FS.body, fontWeight:800, color:T.deep, cursor:'pointer',
+                               display:'flex', alignItems:'center', gap:6 }}>
+                      <Plus size={14}/>Salvar
+                    </button>
+                  </div>
+                  {/* feedback imediato: como o valor digitado se compara ao recorde e à meta */}
+                  {caliInput && !isNaN(Number(caliInput)) && Number(caliInput)>0 && (() => {
+                    const v = Number(caliInput);
+                    const un = atual.metric==='hold_s'?'s':atual.metric==='angulo'?'°':' reps';
+                    const baterMeta = v >= atual.target;
+                    const baterRecorde = melhor!=null && v > melhor;
+                    const cor = baterMeta ? T.mint : baterRecorde ? trilhaAtiva.cor : T.t3;
+                    const msg = baterMeta ? `Meta da etapa batida (${atual.target}${un}) — pronto pra avançar`
+                              : baterRecorde ? `Novo recorde pessoal (anterior: ${melhor}${un})`
+                              : melhor!=null ? `Recorde atual: ${melhor}${un} · meta: ${atual.target}${un}`
+                              : `Primeira marca registrada · meta: ${atual.target}${un}`;
+                    return (
+                      <div style={{ fontSize:FS.meta+0.5, color:cor, marginTop:8, display:'flex', gap:6, alignItems:'center' }}>
+                        {baterMeta ? <CheckCircle2 size={12}/> : baterRecorde ? <TrendingUp size={12}/> : <Info size={12}/>}
+                        {msg}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <CoachNote leitura={leitura} titulo="Leitura da progressão"/>
 
+                {/* Histórico — últimos registros, com o recorde destacado */}
                 {logsAtual.length>0 && (
-                  <div style={{ marginTop:11, display:'flex', flexWrap:'wrap', gap:6 }}>
-                    {[...logsAtual].reverse().slice(0,8).map((l,i) => (
-                      <div key={i} style={{ background:T.lift, border:`1px solid ${T.brd}`, borderRadius:7,
-                                            padding:'5px 9px', fontSize:10, fontFamily:T.mono, color:T.t2 }}>
-                        {l.valor}{atual.metric==='hold_s'?'s':atual.metric==='angulo'?'°':''} <span style={{color:T.t3}}>· {fmtData(l.data).slice(0,5)}</span>
-                      </div>
-                    ))}
+                  <div style={{ marginTop:12 }}>
+                    <div style={{ fontSize:FS.label, fontFamily:T.mono, color:T.t3, letterSpacing:.8,
+                                  textTransform:'uppercase', marginBottom:7 }}>
+                      Histórico · {logsAtual.length} registro{logsAtual.length>1?'s':''}
+                    </div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                      {[...logsAtual].reverse().slice(0,10).map((l,i) => {
+                        const ehRecorde = l.valor === melhor;
+                        return (
+                          <div key={i} style={{
+                            background: ehRecorde ? trilhaAtiva.cor+'1A' : T.lift,
+                            border:`1px solid ${ehRecorde ? trilhaAtiva.cor+'55' : T.brd}`,
+                            borderRadius:7, padding:'5px 9px', fontSize:FS.meta, fontFamily:T.mono,
+                            color: ehRecorde ? trilhaAtiva.cor : T.t2, fontWeight: ehRecorde?700:500,
+                            display:'flex', alignItems:'center', gap:4 }}>
+                            {ehRecorde && <Flag size={9}/>}
+                            {l.valor}{atual.metric==='hold_s'?'s':atual.metric==='angulo'?'°':''}
+                            <span style={{color:T.t3, fontWeight:400}}>· {fmtData(l.data).slice(0,5)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -3642,7 +3787,7 @@ Se alguma atividade não tiver stream de FC, pule ela e me avise fora do JSON (n
 
               {sSelForca && (
                 <ForcaCard sessao={sSelForca} dowLabel={`${DIAS[new Date(dataSel+'T12:00:00').getDay()]} ${dataSel.split('-').reverse().slice(0,2).join('/')}`}
-                  dow={new Date(dataSel+'T12:00:00').getDay()} TRILHAS={TRILHAS} caliLogs={caliLogs}
+                  dow={new Date(dataSel+'T12:00:00').getDay()} TRILHAS={TRILHAS} caliLogs={caliLogs} onRegistrar={registrarCali}
                   aberta={openForca} onToggle={()=>setOpenForca(!openForca)} />
               )}
 
@@ -3708,6 +3853,20 @@ Se alguma atividade não tiver stream de FC, pule ela e me avise fora do JSON (n
           );
         })()}
       </main>
+
+      {/* Ação rápida — o gesto mais repetido do app (registrar o dia) a um toque
+          de qualquer tela, sem precisar navegar. Some quando já está no Diário. */}
+      {aba !== 'diario' && (
+        <button onClick={()=>{ setDataSel(hojeISO()); setAba('diario'); }}
+          aria-label="Registrar dados de hoje"
+          style={{ position:'fixed', bottom:22, right:18, zIndex:50,
+                   width:52, height:52, borderRadius:'50%', border:'none', cursor:'pointer',
+                   background:`linear-gradient(135deg, ${T.coral}, #E6532F)`,
+                   boxShadow:`0 6px 20px ${T.coral}55, 0 2px 8px rgba(0,0,0,.4)`,
+                   display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <NotebookPen size={22} color={T.deep} strokeWidth={2.4}/>
+        </button>
+      )}
 
       {toast && (
         <div style={{ position:'fixed', bottom:20, left:'50%', transform:'translateX(-50%)',
